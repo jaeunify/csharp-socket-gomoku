@@ -67,7 +67,6 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
         List<byte> dataSource = new List<byte>();
         dataSource.AddRange(BitConverter.GetBytes(totalSize));
         dataSource.AddRange(BitConverter.GetBytes((Int16)reqInfo.PacketID));
-        dataSource.AddRange(new byte[1]);
         dataSource.AddRange(reqInfo.Body);
 
         session.Send(dataSource.ToArray(), 0, dataSource.Count);

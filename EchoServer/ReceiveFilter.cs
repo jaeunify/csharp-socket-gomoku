@@ -13,17 +13,15 @@ public class PktBinaryRequestInfo : BinaryRequestInfo
     // 패킷 헤더용 변수
     public UInt16 TotalSize { get; private set; }
     public UInt16 PacketID { get; private set; }
-    public SByte Value1 { get; private set; }
 
-    public const int HEADERE_SIZE = 5;
+    public const int HEADERE_SIZE = 4;
 
 
-    public PktBinaryRequestInfo(UInt16 totalSize, UInt16 packetID, SByte value1, byte[] body)
+    public PktBinaryRequestInfo(UInt16 totalSize, UInt16 packetID, byte[] body)
         : base(null, body)
     {
         this.TotalSize = totalSize;
         this.PacketID = packetID;
-        this.Value1 = value1;
     }
 }
 
@@ -49,7 +47,6 @@ public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
 
         return new PktBinaryRequestInfo(BitConverter.ToUInt16(header.Array, 0),
                                        BitConverter.ToUInt16(header.Array, 0 + 2),
-                                       (SByte)header.Array[4],
                                        bodyBuffer.CloneRange(offset, length));
     }
 }

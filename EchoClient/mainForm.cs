@@ -75,7 +75,7 @@ namespace csharp_test_client
 
             if (Network.Connect(address, port))
             {
-                labelStatus.Text = string.Format("{0}. 서버에 접속 중", DateTime.Now);
+                labelStatus.Text = string.Format("{0}. 서버에 접속 성공", DateTime.Now);
                 btnConnect.Enabled = false;
                 btnDisconnect.Enabled = true;
 
@@ -139,7 +139,6 @@ namespace csharp_test_client
                         var packet = new PacketData();
                         packet.DataSize = (short)(data.Count - PacketHeaderSize);
                         packet.PacketID = BitConverter.ToInt16(data.Array, data.Offset + 2);
-                        packet.Type = (SByte)data.Array[(data.Offset + 4)];
                         packet.BodyData = new byte[packet.DataSize];
                         Buffer.BlockCopy(data.Array, (data.Offset + PacketHeaderSize), packet.BodyData, 0, (data.Count - PacketHeaderSize));
                         lock (((System.Collections.ICollection)RecvPacketQueue).SyncRoot)
@@ -275,7 +274,6 @@ namespace csharp_test_client
             List<byte> dataSource = new List<byte>();
             dataSource.AddRange(BitConverter.GetBytes((Int16)packetSize));
             dataSource.AddRange(BitConverter.GetBytes((Int16)packetID));
-            dataSource.AddRange(new byte[] { (byte)0 });
             
             if (bodyData != null)
             {
