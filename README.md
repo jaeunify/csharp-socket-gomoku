@@ -18,14 +18,14 @@
 
 ## Roadmap
 
-- [ ] Step 1 SuperSocketLite 학습 및 프로젝트 생성 (8/4)
+- [x] Step 1 SuperSocketLite 학습 및 프로젝트 생성 (8/4)
 
   - [x] VS Code + .NET 개발 환경 세팅
   - [x] GitHub 저장소 생성 및 연동
   - [x] `.gitignore` 설정 및 기본 정리
   - [x] SuperSocketLite 구조 분석 (`AppServer`, `AppSession`, `RequestInfo`)
-  - [ ] `EchoServer` 샘플 실행 성공
-  - [ ] `EchoClient` 샘플 실행 성공
+  - [x] `EchoServer` 샘플 실행 성공
+  - [x] `EchoClient` 샘플 실행 성공
 
 - [ ] Step 2 Echo 서버 및 클라이언트 개발 (8/4)
 
