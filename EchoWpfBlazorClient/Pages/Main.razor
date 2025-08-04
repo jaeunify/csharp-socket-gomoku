@@ -1,1 +1,105 @@
-<h1>Hello from Blazor in WPF!</h1>
+
+@page "/"
+@using System.Net.Sockets
+@using System.Text
+@using Microsoft.JSInterop
+@inject IJSRuntime Js
+
+<h3>TCP Echo Client</h3>
+
+<div>
+    <label>IP:</label>
+    <input @bind="IpAddress" />
+    <input type="checkbox" @bind="UseLocalhost" /> Use 127.0.0.1
+</div>
+<div>
+    <label>Port:</label>
+    <input type="number" @bind="Port" />
+</div>
+<div>
+    <button @onclick="Connect">Connect</button>
+    <button @onclick="Disconnect" disabled="@(!IsConnected)">Disconnect</button>
+</div>
+<div>
+    <label>Send Text:</label>
+    <input @bind="SendText" />
+    <button @onclick="SendEcho">Send</button>
+</div>
+
+<h4>Status: @StatusMessage</h4>
+
+<ul>
+    @foreach (var log in Logs)
+    {
+        <li>@log</li>
+    }
+</ul>
+
+@code {
+    string IpAddress = "127.0.0.1";
+    bool UseLocalhost = true;
+    int Port = 32452;
+    string SendText = "";
+    string StatusMessage = "Not connected";
+    List<string> Logs = new();
+
+    bool IsConnected = false;
+    TcpClient client;
+    NetworkStream stream;
+
+    async Task Connect()
+    {
+        try
+        {
+            if (UseLocalhost) IpAddress = "127.0.0.1";
+            client = new TcpClient();
+            await client.ConnectAsync(IpAddress, Port);
+            stream = client.GetStream();
+            IsConnected = true;
+            StatusMessage = $"Connected to {IpAddress}:{Port}";
+            AddLog("서버에 접속 성공");
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Connection failed: {ex.Message}";
+        }
+    }
+
+    void Disconnect()
+    {
+        if (client != null)
+        {
+            stream?.Close();
+            client.Close();
+            IsConnected = false;
+            StatusMessage = "Disconnected";
+            AddLog("서버 접속이 끊어짐");
+        }
+    }
+
+    async Task SendEcho()
+    {
+        if (string.IsNullOrWhiteSpace(SendText))
+        {
+            await Js.InvokeVoidAsync("alert", "보낼 텍스트를 입력하세요");
+            return;
+        }
+
+        if (!IsConnected || stream == null)
+        {
+            AddLog("서버 연결이 되어 있지 않습니다");
+            return;
+        }
+
+        var body = Encoding.UTF8.GetBytes(SendText);
+        await stream.WriteAsync(body, 0, body.Length);
+        AddLog($"Echo 요청: {SendText}, {body.Length} bytes");
+    }
+
+    void AddLog(string message)
+    {
+        Logs.Add($"[{DateTime.Now:T}] {message}");
+        if (Logs.Count > 100)
+            Logs.RemoveAt(0);
+    }
+}
