@@ -11,12 +11,12 @@ using SuperSocketLite.SocketEngine.Protocol;
 
 public class PktBinaryRequestInfo : BinaryRequestInfo
 {
-    // 패킷 헤더용 변수
+    // in header
     public UInt16 TotalSize { get; private set; }
     public PacketId PacketID { get; private set; }
 
-    public const int HEADERE_SIZE = 4;
-
+    // out of header
+    public string SessionId { get; set; }
 
     public PktBinaryRequestInfo(UInt16 totalSize, ushort packetID, byte[] body)
         : base(null, body)
@@ -28,7 +28,7 @@ public class PktBinaryRequestInfo : BinaryRequestInfo
 
 public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
 {
-    public ReceiveFilter() : base(PktBinaryRequestInfo.HEADERE_SIZE)
+    public ReceiveFilter() : base(DIContainer.Get<ServerOption>().HeaderSize)
     {
     }
 
@@ -38,13 +38,13 @@ public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
             Array.Reverse(header, offset, 2);
 
         var packetTotalSize = BitConverter.ToUInt16(header, offset);
-        return packetTotalSize - PktBinaryRequestInfo.HEADERE_SIZE;
+        return packetTotalSize - DIContainer.Get<ServerOption>().HeaderSize;
     }
 
     protected override PktBinaryRequestInfo ResolveRequestInfo(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length)
     {
         if (!BitConverter.IsLittleEndian)
-            Array.Reverse(header.Array, 0, PktBinaryRequestInfo.HEADERE_SIZE);
+            Array.Reverse(header.Array, 0, DIContainer.Get<ServerOption>().HeaderSize);
 
         return new PktBinaryRequestInfo(BitConverter.ToUInt16(header.Array, 0),
                                        BitConverter.ToUInt16(header.Array, 0 + 2),

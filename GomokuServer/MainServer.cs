@@ -1,9 +1,12 @@
 using SuperSocketLite.SocketBase;
 using SuperSocketLite.SocketBase.Protocol;
 using SuperSocketLite.SocketBase.Config;
+using GomokuProtocol;
 
 class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
 {
+    private PacketProcessor PacketProcessor { get; set; }
+
     public MainServer()
         : base(new DefaultReceiveFilterFactory<ReceiveFilter, PktBinaryRequestInfo>())
     {
@@ -33,6 +36,9 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
                 return;
             }
 
+            PacketProcessor = new PacketProcessor();
+            PacketProcessor.CreateAndStart();
+
             Logger.Info($"[{DateTime.Now}] 서버 생성 성공");
         }
         catch (Exception ex)
@@ -40,6 +46,13 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
             Logger.Error($"서버 생성 실패: {ex.ToString()}");
         }
     }
+
+    public override void Stop()
+    {
+        base.Stop();
+        PacketProcessor.Destroy();
+    }
+
 
 
     void OnConnected(NetworkSession session)
@@ -50,21 +63,25 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
     void OnClosed(NetworkSession session, CloseReason reason)
     {
         Logger.Info($"[{DateTime.Now}] 세션 번호 {session.SessionID},  접속해제: {reason.ToString()}");
+
+        // TODO PacketProcessor.InsertPacket(퇴장패킷);
     }
 
     void RequestReceived(NetworkSession session, PktBinaryRequestInfo reqInfo)
     {
         Logger.Debug($"[{DateTime.Now}] 세션 번호 {session.SessionID},  받은 데이터 크기: {reqInfo.Body.Length}, ThreadId: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
 
+        reqInfo.SessionId = session.SessionID;
 
-        var totalSize = (Int16)(reqInfo.Body.Length + PktBinaryRequestInfo.HEADERE_SIZE);
+        PacketProcessor.InsertPacket(reqInfo);
 
-        List<byte> dataSource = new List<byte>();
-        dataSource.AddRange(BitConverter.GetBytes(totalSize));
-        dataSource.AddRange(BitConverter.GetBytes((Int16)reqInfo.PacketID));
-        dataSource.AddRange(reqInfo.Body);
-
-        session.Send(dataSource.ToArray(), 0, dataSource.Count);
+        // TODO 삭제 아래 코드는 Echo 코드
+        // var totalSize = (Int16)(reqInfo.Body.Length + DIContainer.Get<ServerOption>().HeaderSize);
+        // List<byte> dataSource = new List<byte>();
+        // dataSource.AddRange(BitConverter.GetBytes(totalSize));
+        // dataSource.AddRange(BitConverter.GetBytes((Int16)reqInfo.PacketID));
+        // dataSource.AddRange(reqInfo.Body);
+        // session.Send(dataSource.ToArray(), 0, dataSource.Count);
     }
 }
 

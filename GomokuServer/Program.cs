@@ -31,5 +31,7 @@ class Program
 
         Console.WriteLine("key를 누르면 종료한다....");
         Console.ReadKey();
+
+        server.Stop();
     }
 }
