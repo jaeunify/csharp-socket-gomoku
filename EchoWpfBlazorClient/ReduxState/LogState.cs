@@ -16,4 +16,11 @@ public class LogState : ReduxState
 
         OnChange?.Invoke();
     }
+
+    public List<string> GetReversedLogs()
+    {
+        var clone = new List<string>(Logs);
+        clone.Reverse();
+        return clone;
+    }
 }
