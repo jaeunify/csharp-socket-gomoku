@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GomokuProtocol", "..\GomokuProtocol\GomokuProtocol.csproj", "{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GomokuProtocol", "..\GomokuProtocol\GomokuProtocol.csproj", "{09384907-C6A7-44AE-BD88-4DA772508650}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GomokuServer", "GomokuServer.csproj", "{441FC6FD-6218-42D7-99BA-C9911438DB61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,18 +17,30 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Debug|x64.Build.0 = Debug|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Debug|x86.Build.0 = Debug|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Release|x64.ActiveCfg = Release|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Release|x64.Build.0 = Release|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Release|x86.ActiveCfg = Release|Any CPU
-		{9E4A04B2-48A3-4C96-AB4C-8336FE36C4A6}.Release|x86.Build.0 = Release|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Debug|x64.Build.0 = Debug|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Debug|x86.Build.0 = Debug|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Release|x64.ActiveCfg = Release|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Release|x64.Build.0 = Release|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Release|x86.ActiveCfg = Release|Any CPU
+		{09384907-C6A7-44AE-BD88-4DA772508650}.Release|x86.Build.0 = Release|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Debug|x64.Build.0 = Debug|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Debug|x86.Build.0 = Debug|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Release|x64.ActiveCfg = Release|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Release|x64.Build.0 = Release|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Release|x86.ActiveCfg = Release|Any CPU
+		{441FC6FD-6218-42D7-99BA-C9911438DB61}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
