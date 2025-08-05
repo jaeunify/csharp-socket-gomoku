@@ -43,7 +43,7 @@
   - [ ] 게임 상태 저장 및 룰 검증 (`GomokuGameRoom`)
   - [ ] 콘솔 클라이언트에서 플레이 테스트 가능하도록 구현
   - [ ] 승패 판단 및 게임 종료 로직
-  - [ ] README 작성
+  - [x] README 작성
 
 - [ ] Step 4 오목 클라이언트 개발 (8/7)
 
@@ -81,4 +81,48 @@
 - 로그 상태는 Redux 패턴을 모방하여 DI 기반 `LogStore`를 통해 전역 관리
 - `ServerClient`는 DI로 관리되며 `LogStore`와 연결되어 자동 렌더링 갱신
 
+<!-- force spacing --> <p>&nbsp</p> <p>&nbsp</p> 
+     
+<a id="gomoku-server"></a>
 
+## Gomoku Server
+
+### GomokuServer
+- EchoServer를 템플릿으로, 기능을 확장
+- SuperSocketLite 기반의 C# TCP 서버
+- 클라이언트 간 오목 대전을 위한 방 시스템 및 사용자 관리 기능 포함
+- SuperSocketLite의 `AppServer<TSession, TRequestInfo>`를 상속한 `MainServer`가 중심 역할
+- 패킷 수신은 비동기적으로 처리되며, 실제 처리 로직은 `PacketProcessor`의 싱글 스레드에서 순차적으로 수행
+- 구조적으로 안정성과 순서를 보장하는 싱글 스레드 큐 기반 처리 방식
+
+### GomokuProtocol
+- 클라이언트와 서버 간 통신에 사용되는 공통 패킷 정의 모음
+- `MemoryPack`을 사용한 직렬화 구조
+- 패킷 ID와 패킷 본문으로 구성되는 바이너리 프로토콜을 기반으로 동작
+- Request / Response 가 따로 없는 구조
+
+### GomokuClient
+- EchoWpfBlazorClient를 템플릿으로, 기능을 확장
+- (추가 예정) 오목 게임 클라이언트
+
+### 프로토콜 흐름
+```mermaid
+sequenceDiagram
+        actor c1 as Client-1
+        participant s as Server
+        actor c2 as Client-2
+
+        c1->>s: Connect
+        c2->>s: Connect
+
+        s->>c1: GameStart
+        s->> c2: GameStart
+
+        c1->>s: Set
+        s->>c2: Set
+
+        c2->>s: Set
+        s->>c1: GameEnd
+        s->>c2: GameEnd
+
+```
