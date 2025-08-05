@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GomokuProtocol;
 
 using SuperSocketLite.Common;
 using SuperSocketLite.SocketBase.Protocol;
@@ -12,16 +13,16 @@ public class PktBinaryRequestInfo : BinaryRequestInfo
 {
     // 패킷 헤더용 변수
     public UInt16 TotalSize { get; private set; }
-    public UInt16 PacketID { get; private set; }
+    public PacketId PacketID { get; private set; }
 
     public const int HEADERE_SIZE = 4;
 
 
-    public PktBinaryRequestInfo(UInt16 totalSize, UInt16 packetID, byte[] body)
+    public PktBinaryRequestInfo(UInt16 totalSize, ushort packetID, byte[] body)
         : base(null, body)
     {
         this.TotalSize = totalSize;
-        this.PacketID = packetID;
+        this.PacketID = (PacketId)packetID;
     }
 }
 

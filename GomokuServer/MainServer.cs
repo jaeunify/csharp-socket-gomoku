@@ -2,8 +2,6 @@ using SuperSocketLite.SocketBase;
 using SuperSocketLite.SocketBase.Protocol;
 using SuperSocketLite.SocketBase.Config;
 
-
-
 class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
 {
 
@@ -15,7 +13,7 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
         NewRequestReceived += new RequestHandler<NetworkSession, PktBinaryRequestInfo>(RequestReceived);
     }
 
-    public void CreateServer()
+    public void Create()
     {
         try
         {

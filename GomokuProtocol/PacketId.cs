@@ -1,4 +1,6 @@
-﻿public enum PacketId : Int16
+﻿namespace GomokuProtocol;
+
+public enum PacketId : Int16
 {
     None = 0,
     Connect = 1,
