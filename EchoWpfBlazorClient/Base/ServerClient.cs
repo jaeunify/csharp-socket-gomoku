@@ -8,7 +8,7 @@ public class ServerClient : Instance
 
     public string Ip { get; set; }
     public int Port { get; set; }
-    public LogStore LogStore { get; set; }
+    public LogState LogStore { get; set; }
 
     private TcpClient client;
     private NetworkStream stream;
@@ -17,7 +17,7 @@ public class ServerClient : Instance
 
     public ConcurrentQueue<(short PacketId, byte[] Body)> RecvPacketQueue = new();
 
-    public ServerClient(LogStore logstore)
+    public ServerClient(LogState logstore)
     {
         this.LogStore = logstore;
     }

@@ -19,7 +19,7 @@ namespace EchoWpfBlazorClient
 #endif
             // DI
             services.AddSingleton<ServerClient>();
-            services.AddSingleton<LogStore>();
+            services.AddSingleton<LogState>();
 
             Services = services.BuildServiceProvider();
             base.OnStartup(e);

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-public class LogStore : Instance
+public class LogState : ReduxState
 {
     public List<string> Logs { get; private set; } = new();
 
-    public event Action? OnChange;
+    public event Action OnChange;
 
     public void AddLog(string message)
     {
