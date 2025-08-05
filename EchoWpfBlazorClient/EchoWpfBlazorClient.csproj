@@ -6,10 +6,11 @@
         <UseWPF>true</UseWPF>
         <RazorLangVersion>9.0</RazorLangVersion>
         <RootNamespace>EchoWpfBlazorClient</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="9.0.21"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="9.0.21" />
     </ItemGroup>
     
 </Project>
