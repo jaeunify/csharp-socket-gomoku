@@ -1,5 +1,7 @@
 using MessagePack;
 
+namespace GomokuProtocol;
+
 [MessagePackObject]
 public class ConnectRequest : Request
 {
