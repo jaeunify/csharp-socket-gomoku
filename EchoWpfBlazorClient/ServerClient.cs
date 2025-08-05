@@ -2,12 +2,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Collections.Concurrent;
 
-public class ServerClient : Singleton<ServerClient>
+public class ServerClient : Instance
 {
     const int HEADER_SIZE = 4;
 
     public string Ip { get; set; }
     public int Port { get; set; }
+    public LogStore LogStore { get; set; }
 
     private TcpClient client;
     private NetworkStream stream;
@@ -15,6 +16,11 @@ public class ServerClient : Singleton<ServerClient>
     private bool isRunning = false;
 
     public ConcurrentQueue<(short PacketId, byte[] Body)> RecvPacketQueue = new();
+
+    public ServerClient(LogStore logstore)
+    {
+        this.LogStore = logstore;
+    }
 
     public void Configure(string address, int port)
     {
@@ -100,6 +106,9 @@ public class ServerClient : Singleton<ServerClient>
 
             byte[] body = new byte[totalSize - HEADER_SIZE];
             Buffer.BlockCopy(data, offset + HEADER_SIZE, body, 0, body.Length);
+
+            string msg = Encoding.UTF8.GetString(body);
+            LogStore?.AddLog($"[서버 응답] PacketID: {packetId}, Message: {msg}");
 
             RecvPacketQueue.Enqueue((packetId, body));
             offset += totalSize;

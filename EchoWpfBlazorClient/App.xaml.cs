@@ -17,6 +17,10 @@ namespace EchoWpfBlazorClient
 #if DEBUG
             services.AddBlazorWebViewDeveloperTools();
 #endif
+            // DI
+            services.AddSingleton<ServerClient>();
+            services.AddSingleton<LogStore>();
+
             Services = services.BuildServiceProvider();
             base.OnStartup(e);
         }
