@@ -1,4 +1,4 @@
-using GomokuProtocol;
+using GomokuPacket;
 
 public class UserManager // TODO singleton 으로 개선
 {

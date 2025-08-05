@@ -1,4 +1,4 @@
-namespace GomokuProtocol;
+namespace GomokuPacket;
 
 public enum ERROR_CODE : ushort
 {

@@ -1,4 +1,4 @@
-﻿namespace GomokuProtocol;
+﻿namespace GomokuPacket;
 
 public enum PacketId : Int16
 {

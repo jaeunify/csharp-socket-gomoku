@@ -1,7 +1,7 @@
 using SuperSocketLite.SocketBase;
 using SuperSocketLite.SocketBase.Protocol;
 using SuperSocketLite.SocketBase.Config;
-using GomokuProtocol;
+using GomokuPacket;
 
 class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
 {

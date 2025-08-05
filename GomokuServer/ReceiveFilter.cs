@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GomokuProtocol;
+using GomokuPacket;
 
 using SuperSocketLite.Common;
 using SuperSocketLite.SocketBase.Protocol;

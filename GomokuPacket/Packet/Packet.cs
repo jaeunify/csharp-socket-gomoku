@@ -1,9 +1,9 @@
 using MessagePack;
 
-namespace GomokuProtocol;
+namespace GomokuPacket;
 
 [MessagePackObject]
-public class Protocol
+public class Packet
 {
     [Key(0)]
     public PacketId PacketId { get; set; }
