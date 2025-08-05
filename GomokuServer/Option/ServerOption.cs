@@ -1,4 +1,4 @@
-public static class ServerOption
+public class ServerOption : Instance
 {
    
 }

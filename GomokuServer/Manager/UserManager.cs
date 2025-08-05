@@ -5,6 +5,13 @@ public class UserManager // TODO singleton 으로 개선
     UInt64 UserSeq = 0;
     private Dictionary<string, User> UserMap = new Dictionary<string, User>();
 
+    GameOption GameOption { get; set; }
+
+    public UserManager(GameOption gameOption)
+    {
+        GameOption = gameOption;
+    }
+
     public ERROR_CODE AddUser(string userId, string sessionId) // TODO 어디서 호출하지?
     {
         if (IsUserCountFull())

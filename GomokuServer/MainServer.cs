@@ -4,7 +4,6 @@ using SuperSocketLite.SocketBase.Config;
 
 class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
 {
-
     public MainServer()
         : base(new DefaultReceiveFilterFactory<ReceiveFilter, PktBinaryRequestInfo>())
     {
@@ -21,9 +20,9 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
             {
                 Port = 32452,
                 Ip = "Any",
-                MaxConnectionNumber = 100,
+                MaxConnectionNumber = DIContainer.Get<GameOption>().MaxUserCountPerServer,
                 Mode = SocketMode.Tcp,
-                Name = "Echo Server"
+                Name = "Gomoku Server"
             };
 
             bool bResult = Setup(new RootConfig(), config, logFactory: null);
