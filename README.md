@@ -27,14 +27,14 @@
   - [x] `EchoServer` 샘플 실행 성공
   - [x] `EchoClient` 샘플 실행 성공
 
-- [ ] Step 2 Echo 서버 및 클라이언트 개발 (8/4)
+- [x] Step 2 Echo 서버 및 클라이언트 개발 (8/4)
 
-  - [ ] Echo 서버 프로젝트 구조 설계 (`EchoSession`, `EchoReceiveFilter`)
-  - [ ] 텍스트 수신 → 그대로 응답하는 기본 구현
-  - [ ] 클라이언트 콘솔 앱 제작
-  - [ ] Echo 기능 동작 확인 (멀티 접속 포함)
-  - [ ] 로그 및 에러 처리 추가
-  - [ ] README 작성
+  - [x] Echo 서버 프로젝트 구조 설계 (`EchoSession`, `EchoReceiveFilter`)
+  - [x] 텍스트 수신 → 그대로 응답하는 기본 구현
+  - [x] 클라이언트 콘솔 앱 제작
+  - [x] Echo 기능 동작 확인 (멀티 접속 포함)
+  - [x] 로그 및 에러 처리 추가
+  - [x] README 작성
 
 - [ ] Step 3 오목 서버 개발 (8/5~8/6)
 
@@ -57,3 +57,28 @@
 
   - [ ] 오목 API 서버 제작 (예: 매칭 대기열 관리용 REST API)
   - [ ] 오목 매칭 서버 별도 구성 (`MatchServer`)
+
+<!-- force spacing --> <p>&nbsp</p> <p>&nbsp</p> 
+     
+<a id="echo-server"></a>
+
+## Echo Server
+
+### EchoServer
+- [원본](https://github.com/jacking75/dotnetconf_2023_SuperSocketLite_handson/tree/main/EchoServer)에서 불필요한 코드를 걷어냈습니다.
+- C# 콘솔 기반 TCP 서버
+- 클라이언트로부터 받은 메시지를 그대로 다시 돌려주는 에코 기능
+- SuperSocket 기반 확장 가능 구조
+
+### EchoClient
+- [원본](https://github.com/jacking75/dotnetconf_2023_SuperSocketLite_handson/tree/main/EchoClient)과 완전히 동일합니다.
+- winform 형태의 TCP 클라이언트
+- 메시지를 서버에 전송하고 응답을 출력
+
+### EchoWpfBlazorClient
+- WPF 애플리케이션에 Blazor WebView를 임베딩한 UI 클라이언트
+- 서버와 TCP 연결, 문자열 전송 및 수신 로그 확인 가능
+- 로그 상태는 Redux 패턴을 모방하여 DI 기반 `LogStore`를 통해 전역 관리
+- `ServerClient`는 DI로 관리되며 `LogStore`와 연결되어 자동 렌더링 갱신
+
+
