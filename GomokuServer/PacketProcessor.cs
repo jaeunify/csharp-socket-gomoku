@@ -15,6 +15,7 @@ public class PacketProcessor
         CommonHandler.RegistPacketHandler(PacketHandlerMap);
         RoomHandler.RegistPacketHandler(PacketHandlerMap);
 
+        IsThreadRunning = true;
         new Thread(this.Process).Start();
     }
 
@@ -26,7 +27,10 @@ public class PacketProcessor
             {
                 var packet = MsgBuffer.Receive();
 
-                // TODO 
+                // TODO log
+
+                if (PacketHandlerMap.ContainsKey(packet.PacketID))
+                    PacketHandlerMap[packet.PacketID](packet);
             }
             catch (Exception ex)
             {
