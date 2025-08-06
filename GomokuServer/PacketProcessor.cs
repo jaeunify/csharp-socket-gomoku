@@ -54,7 +54,7 @@ public partial class PacketProcessor
                     // TODO log
                 }
 
-                continue;
+                throw; // impossible fatal error
             }
         }
     }

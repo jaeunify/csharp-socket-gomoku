@@ -4,6 +4,6 @@ public partial class PacketProcessor
     {
         var sessionID = packet.SessionId;
         var user = DIContainer.Get<UserManager>().AddUser(sessionID);
-        DIContainer.Get<RoomManager>().AddUser(user);
+        DIContainer.Get<RoomManager>().Enter(user);
     }
 }
