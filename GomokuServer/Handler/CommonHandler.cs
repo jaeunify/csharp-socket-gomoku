@@ -10,7 +10,7 @@ public class CommonHandler : Handler
     public static void Connect(PktBinaryRequestInfo packet)
     {
         var sessionID = packet.SessionId;
-        DIContainer.Get<UserManager>().AddUser(packet.SessionId);
-        DIContainer.Get<RoomManager>().AddUser(packet.SessionId);
+        var user = DIContainer.Get<UserManager>().AddUser(sessionID);
+        DIContainer.Get<RoomManager>().AddUser(user);
     }
 }

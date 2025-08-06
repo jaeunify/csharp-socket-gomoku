@@ -2,28 +2,35 @@ using GomokuPacket;
 
 public class UserManager
 {
-    private HashSet<string> ConnectedSessionIds = new HashSet<string>();
+    private Dictionary<string, User> ConnectedUsers = new Dictionary<string, User>();
 
-    public ERROR_CODE AddUser(string sessionId)
+    public User AddUser(string sessionId)
     {
         if (IsUserCountFull())
-        {
-            return ERROR_CODE.USER_COUNT_FULL;
-        }
+            throw new ServerException(ERROR_CODE.USER_COUNT_FULL);
 
-        if (ConnectedSessionIds.Contains(sessionId))
-        {
-            return ERROR_CODE.USER_ALREADY_EXIST;
-        }
 
-        ConnectedSessionIds.Add(sessionId);
+        if (ConnectedUsers.ContainsKey(sessionId))
+            throw new ServerException(ERROR_CODE.USER_ALREADY_EXIST);
 
-        return ERROR_CODE.NONE;
+        var user = new User(sessionId);
+        ConnectedUsers[sessionId] = user;
+        return user;
     }
 
     private bool IsUserCountFull()
     {
         var maxUserCount = DIContainer.Get<GameOption>().MaxUserCountPerServer;
-        return ConnectedSessionIds.Count >= maxUserCount;
+        return ConnectedUsers.Count >= maxUserCount;
+    }
+}
+
+public class User
+{
+    public string SessionId { get; private set; }
+
+    public User(string sessionId)
+    {
+        SessionId = sessionId;
     }
 }

@@ -32,6 +32,12 @@ public class PacketProcessor
                 if (PacketHandlerMap.ContainsKey(packet.PacketID))
                     PacketHandlerMap[packet.PacketID](packet);
             }
+            catch (ServerException ex)
+            {
+                // TODO error packet send
+
+                continue;
+            }
             catch (Exception ex)
             {
                 if (IsThreadRunning)
