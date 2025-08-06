@@ -1,45 +1,29 @@
 using GomokuPacket;
 
-public class UserManager // TODO singleton 으로 개선
+public class UserManager
 {
-    UInt64 UserSeq = 0;
-    private Dictionary<string, User> UserMap = new Dictionary<string, User>();
+    private HashSet<string> ConnectedSessionIds = new HashSet<string>();
 
-    GameOption GameOption { get; set; }
-
-    public UserManager(GameOption gameOption)
-    {
-        GameOption = gameOption;
-    }
-
-    public ERROR_CODE AddUser(string userId, string sessionId) // TODO 어디서 호출하지?
+    public ERROR_CODE AddUser(string sessionId)
     {
         if (IsUserCountFull())
         {
             return ERROR_CODE.USER_COUNT_FULL;
         }
 
-        if (UserMap.ContainsKey(sessionId))
+        if (ConnectedSessionIds.Contains(sessionId))
         {
             return ERROR_CODE.USER_ALREADY_EXIST;
         }
 
-        UserSeq++; // TODO 어디다쓰지 ?
-
-        var user = new User { UserId = userId, SessionId = sessionId };
-        UserMap.Add(sessionId, user);
+        ConnectedSessionIds.Add(sessionId);
 
         return ERROR_CODE.NONE;
     }
 
     private bool IsUserCountFull()
     {
-        return UserMap.Count >= GameOption.MaxUserCountPerServer;
+        var maxUserCount = DIContainer.Get<GameOption>().MaxUserCountPerServer;
+        return ConnectedSessionIds.Count >= maxUserCount;
     }
-}
-public class User
-{
-    public string UserId { get; set; }
-    public string SessionId { get; set; }
-
 }

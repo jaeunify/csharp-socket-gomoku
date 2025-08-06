@@ -12,6 +12,7 @@ class Program
         services.AddSingleton<GameOption>();
         services.AddSingleton<ServerOption>();
         services.AddSingleton<UserManager>();
+        services.AddSingleton<RoomManager>();
         var provider = services.BuildServiceProvider();
         DIContainer.Init(provider);
 
