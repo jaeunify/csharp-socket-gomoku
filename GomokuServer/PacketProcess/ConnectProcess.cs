@@ -1,3 +1,5 @@
+using GomokuPacket;
+
 public partial class PacketProcessor
 {
     public void ConnectProcess(PktBinaryRequestInfo packet)
@@ -8,7 +10,23 @@ public partial class PacketProcessor
         if (room.IsReadyToStart())
         {
             room.Start();
-            // todo send start pacekt to all users in the room
+
+            var users = room.GetUsers();
+            var firstUser = users[0];
+            var otherUsers = users.Skip(1).ToList();
+
+            SendPacket(firstUser.SessionId, new GameStartPacket()
+            {
+                AmIFirst = true
+            });
+
+            foreach (var otherUser in otherUsers)
+            {
+                SendPacket(otherUser.SessionId, new GameStartPacket()
+                {
+                    AmIFirst = false
+                });
+            }
         }
     }
 }

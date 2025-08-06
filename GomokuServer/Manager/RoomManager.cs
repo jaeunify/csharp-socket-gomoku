@@ -101,6 +101,11 @@ public class Room
     {
         return RoomState <= RoomState.Waiting && IsFull();
     }
+
+    public List<User> GetUsers()
+    {
+        return ConnectedUsers.Values.ToList();
+    }
 }
 
 public enum RoomState

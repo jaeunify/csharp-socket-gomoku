@@ -1,5 +1,6 @@
 using System.Threading.Tasks.Dataflow;
 using GomokuPacket;
+using MessagePack;
 
 public partial class PacketProcessor
 {
@@ -8,12 +9,12 @@ public partial class PacketProcessor
     private Dictionary<PacketId, Action<PktBinaryRequestInfo>> PacketHandlerMap;
 
     private BufferBlock<PktBinaryRequestInfo> MsgBuffer = new();
-    private IPktBinarySender PacketSender;
+    private IPktBinarySender BinarySender;
 
     public PacketProcessor(IPktBinarySender packetSender)
     { 
         // MainServer의 바이너리 Sender 인터페이스 등록
-        PacketSender = packetSender;
+        BinarySender = packetSender;
 
         // 패킷 핸들러 등록
         PacketHandlerMap = new Dictionary<PacketId, Action<PktBinaryRequestInfo>>
@@ -67,5 +68,18 @@ public partial class PacketProcessor
     public void InsertPacket(PktBinaryRequestInfo data)
     {
         MsgBuffer.Post(data);
+    }
+
+    public void SendPacket(string sessionId, Packet packet)
+    {
+        var body = MessagePackSerializer.Serialize(packet);
+        var totalSize = (Int16)(body.Length + DIContainer.Get<ServerOption>().HeaderSize);
+
+        List<byte> dataSource = new List<byte>();
+        dataSource.AddRange(BitConverter.GetBytes(totalSize));
+        dataSource.AddRange(BitConverter.GetBytes((Int16)packet.PacketId));
+        dataSource.AddRange(body);
+
+        BinarySender.Send(sessionId, dataSource.ToArray());
     }
 }

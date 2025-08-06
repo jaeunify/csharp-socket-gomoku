@@ -74,14 +74,6 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>, IPktBinarySe
         reqInfo.SessionId = session.SessionID;
 
         PacketProcessor.InsertPacket(reqInfo);
-
-        // TODO 삭제 아래 코드는 Echo 코드
-        // var totalSize = (Int16)(reqInfo.Body.Length + DIContainer.Get<ServerOption>().HeaderSize);
-        // List<byte> dataSource = new List<byte>();
-        // dataSource.AddRange(BitConverter.GetBytes(totalSize));
-        // dataSource.AddRange(BitConverter.GetBytes((Int16)reqInfo.PacketID));
-        // dataSource.AddRange(reqInfo.Body);
-        // session.Send(dataSource.ToArray(), 0, dataSource.Count);
     }
 
     public void Send(string sessionId, byte[] data)
