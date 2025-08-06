@@ -2,7 +2,7 @@
 @using Microsoft.JSInterop
 @using Radzen
 @using Radzen.Blazor
-@* @using GomokuPacket *@
+@using GomokuPacket
 
 @inject IJSRuntime Js
 @inject LogState LogState
@@ -13,7 +13,7 @@
 
     <RadzenFieldset Text="Connection">
         <RadzenRow>
-            <h5>@StatusMessage</h5>
+            @StatusMessage
         </RadzenRow>
         <RadzenRow>
             <RadzenTextBox @bind-Value="IpAddress" Name="IP" Style="width: 200px;" Placeholder="IP Address" />
@@ -31,7 +31,7 @@
 
     <RadzenFieldset Text="Message">
         <div style="display: flex; gap: 10px;">
-            @* <RadzenDropDown @bind-Value=@PacketId Data=@packetIds Style="width: 100px; max-width: 400px;" Name="DropDownBindValue" /> // 여기 *@
+            <RadzenDropDown @bind-Value=@PacketId Data=@packetIds Style="width: 150px; max-width: 400px;" Name="DropDownBindValue" />
             <RadzenTextBox @bind-Value="SendText" Name="Message" Style="flex-grow: 1;" Placeholder="Enter message to send" />
             <RadzenButton Text="Send" Click="Send" Icon="send" ButtonStyle="ButtonStyle.Primary" Style="width: 100px;" />
         </div>
@@ -46,8 +46,8 @@
 @code {
     string IpAddress = "127.0.0.1";
     int Port = 32452;
-    @* PacketId PacketId = PacketId.None;
-    List<PacketId> packetIds = new(); *@
+    PacketId PacketId = PacketId.None;
+    List<PacketId> packetIds = new();
     string SendText = "";
     string StatusMessage = "Not connected";
 
@@ -57,7 +57,7 @@
     {
         LogState.OnChange += HandleLogChange;
 
-        @* packetIds = Enum.GetValues<PacketId>().ToList(); *@
+        packetIds = Enum.GetValues<PacketId>().ToList();
     }
 
     private void HandleLogChange()
@@ -116,12 +116,12 @@
 
         try
         {
-            var packetSize = await ServerClient.SendAsync(SendText);
-            LogState.AddLog($"Echo 요청: {SendText}, {packetSize} bytes");
+            var packetSize = await ServerClient.SendAsync(SendText, PacketId);
+            LogState.AddLog($"SEND {PacketId} {SendText}, {packetSize} bytes");
         }
         catch (Exception ex)
         {
-            LogState.AddLog($"Echo 요청 실패: {ex.Message}");
+            LogState.AddLog($"SEND FAIL: {ex.Message}");
         }
     }
 

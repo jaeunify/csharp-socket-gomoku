@@ -13,5 +13,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="9.0.21" />
         <PackageReference Include="Radzen.Blazor" Version="7.1.7" />
     </ItemGroup>
-    
+
+    <ItemGroup>
+        <ProjectReference Include="..\GomokuPacket\GomokuPacket.csproj" />
+    </ItemGroup>
 </Project>

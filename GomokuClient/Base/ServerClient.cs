@@ -1,6 +1,7 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Collections.Concurrent;
+using GomokuPacket;
 
 public class ServerClient : Instance
 {
@@ -46,7 +47,7 @@ public class ServerClient : Instance
         client?.Close();
     }
 
-    public async Task<int> SendAsync(string sendText, short packetId = 1000)
+    public async Task<int> SendAsync(string sendText, PacketId packetId)
     {
         if (stream == null)
             throw new Exception("서버 연결이 되어 있지 않습니다");
@@ -56,7 +57,7 @@ public class ServerClient : Instance
 
         var packet = new List<byte>();
         packet.AddRange(BitConverter.GetBytes(totalSize));
-        packet.AddRange(BitConverter.GetBytes(packetId));
+        packet.AddRange(BitConverter.GetBytes((short)packetId));
         packet.AddRange(body);
 
         await stream.WriteAsync(packet.ToArray(), 0, packet.Count);
