@@ -2,6 +2,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Collections.Concurrent;
 using GomokuPacket;
+using MessagePack;
 
 public class ServerClient : Instance
 {
@@ -47,21 +48,23 @@ public class ServerClient : Instance
         client?.Close();
     }
 
-    public async Task<int> SendAsync(string sendText, PacketId packetId)
+
+    /// <returns>int byteCount: 전송한 바이너리의 전체 길이</returns>
+    public async Task<int> SendAsync(Packet packet)
     {
         if (stream == null)
             throw new Exception("서버 연결이 되어 있지 않습니다");
 
-        var body = Encoding.UTF8.GetBytes(sendText);
+        var body = MessagePackSerializer.Serialize(packet);
         short totalSize = (short)(HEADER_SIZE + body.Length);
 
-        var packet = new List<byte>();
-        packet.AddRange(BitConverter.GetBytes(totalSize));
-        packet.AddRange(BitConverter.GetBytes((short)packetId));
-        packet.AddRange(body);
+        var bytes = new List<byte>();
+        bytes.AddRange(BitConverter.GetBytes(totalSize));
+        bytes.AddRange(BitConverter.GetBytes((short)packet.PacketId));
+        bytes.AddRange(body);
 
-        await stream.WriteAsync(packet.ToArray(), 0, packet.Count);
-        return packet.Count;
+        await stream.WriteAsync(bytes.ToArray(), 0, bytes.Count);
+        return bytes.Count;
     }
 
     private void ReceiveLoop()

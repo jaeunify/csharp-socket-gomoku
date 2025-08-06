@@ -3,6 +3,7 @@
 @using Radzen
 @using Radzen.Blazor
 @using GomokuPacket
+@using System.Text.Json
 
 @inject IJSRuntime Js
 @inject LogState LogState
@@ -31,9 +32,13 @@
 
     <RadzenFieldset Text="Message">
         <div style="display: flex; gap: 10px;">
-            <RadzenDropDown @bind-Value=@PacketId Data=@packetIds Style="width: 150px; max-width: 400px;" Name="DropDownBindValue" />
-            <RadzenTextBox @bind-Value="SendText" Name="Message" Style="flex-grow: 1;" Placeholder="Enter message to send" />
-            <RadzenButton Text="Send" Click="Send" Icon="send" ButtonStyle="ButtonStyle.Primary" Style="width: 100px;" />
+            <RadzenDropDown TValue=PacketId Value=@PacketId Data=@packetIds
+                Change="@(args => ChangePacketId((PacketId)args))" Style="width: 150px; max-width: 400px;"
+                Name="DropDownChangeEvent" />
+            <RadzenTextBox @bind-Value=@Input Name="Message" Style="flex-grow: 1;"
+                Placeholder="Enter message to send" />
+            <RadzenButton Text="Send" Click="Send" Icon="send" ButtonStyle="ButtonStyle.Primary"
+                Style="width: 100px;" />
         </div>
 
         <div
@@ -44,11 +49,13 @@
 </div>
 
 @code {
+    // todo variable 정리
+    Dictionary<PacketId, (Type packetType, string DefaultInput)> SendAblePackets = new();
     string IpAddress = "127.0.0.1";
     int Port = 32452;
-    PacketId PacketId = PacketId.None;
+    PacketId PacketId;
     List<PacketId> packetIds = new();
-    string SendText = "";
+    string Input;
     string StatusMessage = "Not connected";
 
     bool IsConnected = false;
@@ -57,7 +64,14 @@
     {
         LogState.OnChange += HandleLogChange;
 
-        packetIds = Enum.GetValues<PacketId>().ToList();
+        SendAblePackets = new Dictionary<PacketId, (Type packetType, string DefaultInput)>
+{
+{ PacketId.Enter, (typeof(EnterPacket), JsonSerializer.Serialize(new EnterPacket { SenderSessionId = "Player1" })) },
+};
+
+        packetIds = SendAblePackets.Keys.ToList();
+
+        ChangePacketId(PacketId.Enter);
     }
 
     private void HandleLogChange()
@@ -102,27 +116,28 @@
 
     async Task Send()
     {
-        if (string.IsNullOrWhiteSpace(SendText))
-        {
-            await Js.InvokeVoidAsync("alert", "보낼 텍스트를 입력하세요");
-            return;
-        }
-
         if (!IsConnected)
         {
-            LogState.AddLog("서버 연결이 되어 있지 않습니다");
+            await Js.InvokeVoidAsync("alert", "먼저 서버에 접속하세요.");
             return;
         }
 
         try
         {
-            var packetSize = await ServerClient.SendAsync(SendText, PacketId);
-            LogState.AddLog($"SEND {PacketId} {SendText}, {packetSize} bytes");
+            var packetType = SendAblePackets[PacketId].packetType;
+            var packet = (Packet)JsonSerializer.Deserialize(Input, packetType);
+            await ServerClient.SendAsync(packet);
+            LogState.AddLog($"SEND {PacketId} {Input}");
         }
         catch (Exception ex)
         {
-            LogState.AddLog($"SEND FAIL: {ex.Message}");
+            await Js.InvokeVoidAsync("alert", "패킷 내용이 형식에 맞지 않습니다.");
         }
     }
 
+    private void ChangePacketId(PacketId packetId)
+    {
+        PacketId = packetId;
+        Input = SendAblePackets[packetId].DefaultInput;
+    }
 }
