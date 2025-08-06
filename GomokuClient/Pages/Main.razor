@@ -1,0 +1,128 @@
+@page "/"
+@using Microsoft.JSInterop
+@using Radzen
+@using Radzen.Blazor
+@* @using GomokuPacket *@
+
+@inject IJSRuntime Js
+@inject LogState LogState
+@inject ServerClient ServerClient
+
+<div style="padding: 20px;">
+    <h3 class="mt-4 mb-2">TCP Gomoku Client</h3>
+
+    <RadzenFieldset Text="Connection">
+        <RadzenRow>
+            <h5>@StatusMessage</h5>
+        </RadzenRow>
+        <RadzenRow>
+            <RadzenTextBox @bind-Value="IpAddress" Name="IP" Style="width: 200px;" Placeholder="IP Address" />
+            <RadzenNumeric @bind-Value="Port" Name="Port" Style="width: 100px;" />
+            @if (IsConnected)
+            {
+                <RadzenButton Text="Disconnect" Click="Disconnect" Icon="link_off" ButtonStyle="ButtonStyle.Danger" />
+            }
+            else
+            {
+                <RadzenButton Text="Connect" Click="Connect" Icon="link" Style="margin-right: 5px;" />
+            }
+        </RadzenRow>
+    </RadzenFieldset>
+
+    <RadzenFieldset Text="Message">
+        <div style="display: flex; gap: 10px;">
+            @* <RadzenDropDown @bind-Value=@PacketId Data=@packetIds Style="width: 100px; max-width: 400px;" Name="DropDownBindValue" /> // 여기 *@
+            <RadzenTextBox @bind-Value="SendText" Name="Message" Style="flex-grow: 1;" Placeholder="Enter message to send" />
+            <RadzenButton Text="Send" Click="Send" Icon="send" ButtonStyle="ButtonStyle.Primary" Style="width: 100px;" />
+        </div>
+
+        <div
+            style="white-space: pre-line; font-family: monospace; max-height: 300px; overflow-y: auto; margin-top: 10px;">
+            @((MarkupString)string.Join("\n", LogState.GetReversedLogs()))
+        </div>
+    </RadzenFieldset>
+</div>
+
+@code {
+    string IpAddress = "127.0.0.1";
+    int Port = 32452;
+    @* PacketId PacketId = PacketId.None;
+    List<PacketId> packetIds = new(); *@
+    string SendText = "";
+    string StatusMessage = "Not connected";
+
+    bool IsConnected = false;
+
+    protected override void OnInitialized()
+    {
+        LogState.OnChange += HandleLogChange;
+
+        @* packetIds = Enum.GetValues<PacketId>().ToList(); *@
+    }
+
+    private void HandleLogChange()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        LogState.OnChange -= HandleLogChange;
+    }
+
+    async Task Connect()
+    {
+        try
+        {
+            ServerClient.Configure(IpAddress, Port);
+
+            await ServerClient.ConnectAsync();
+
+            IsConnected = true;
+            StatusMessage = $"Connected to {IpAddress}:{Port}";
+            LogState.AddLog("서버에 접속 성공");
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Connection failed: {ex.Message}";
+        }
+    }
+
+    void Disconnect()
+    {
+        if (IsConnected)
+        {
+            ServerClient.Disconnect();
+
+            IsConnected = false;
+            StatusMessage = "Disconnected";
+            LogState.AddLog("서버 접속이 끊어짐");
+        }
+    }
+
+    async Task Send()
+    {
+        if (string.IsNullOrWhiteSpace(SendText))
+        {
+            await Js.InvokeVoidAsync("alert", "보낼 텍스트를 입력하세요");
+            return;
+        }
+
+        if (!IsConnected)
+        {
+            LogState.AddLog("서버 연결이 되어 있지 않습니다");
+            return;
+        }
+
+        try
+        {
+            var packetSize = await ServerClient.SendAsync(SendText);
+            LogState.AddLog($"Echo 요청: {SendText}, {packetSize} bytes");
+        }
+        catch (Exception ex)
+        {
+            LogState.AddLog($"Echo 요청 실패: {ex.Message}");
+        }
+    }
+
+}

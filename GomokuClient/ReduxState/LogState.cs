@@ -1,0 +1,26 @@
+using System;
+using System.Collections.Generic;
+
+public class LogState : ReduxState
+{
+    public List<string> Logs { get; private set; } = new();
+
+    public event Action OnChange;
+
+    public void AddLog(string message)
+    {
+        Logs.Add($"[{DateTime.Now:T}] {message}");
+
+        if (Logs.Count > 100)
+            Logs.RemoveAt(0);
+
+        OnChange?.Invoke();
+    }
+
+    public List<string> GetReversedLogs()
+    {
+        var clone = new List<string>(Logs);
+        clone.Reverse();
+        return clone;
+    }
+}
