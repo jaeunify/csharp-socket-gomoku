@@ -4,6 +4,11 @@ public partial class PacketProcessor
     {
         var sessionID = packet.SessionId;
         var user = DIContainer.Get<UserManager>().AddUser(sessionID);
-        DIContainer.Get<RoomManager>().Enter(user);
+        var room = DIContainer.Get<RoomManager>().Enter(user);
+        if (room.IsReadyToStart())
+        {
+            room.Start();
+            // todo send start pacekt to all users in the room
+        }
     }
 }

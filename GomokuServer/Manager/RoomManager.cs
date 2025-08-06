@@ -5,16 +5,38 @@ public class RoomManager
     private Dictionary<int, Room> Rooms = new Dictionary<int, Room>();
     private Dictionary<string, int> SessionIdRoomId = new Dictionary<string, int>(); // session id 로 Room 을 빠르게 찾기 위해 저장
     private Pool<Room> RoomPool = new Pool<Room>();
-    public void Enter(User user)
+    private Room? PendingRoom = null;
+
+    public Room Enter(User user)
     {
-        if (!SessionIdRoomId.ContainsKey(user.SessionId))
+        if (SessionIdRoomId.TryGetValue(user.SessionId, out var roomId))
         {
-            var room = RoomPool.RentFromPool();
-            Rooms[room.RoomId] = room; // dic 부터 저장해야, 멀티스레드 환경에서 안전하게 동작함
+            // TODO 재접속
+            return Rooms[roomId];
+        }
+        else
+        {
+            var hasPendingRoom = PendingRoom is not null;
+            var room = hasPendingRoom ? PendingRoom : RoomPool.RentFromPool();
+
+            if (hasPendingRoom)
+            {
+                PendingRoom = null; // 2명이 채워졌으니, PendingRoom을 비워줌
+            }
+            else
+            {
+                PendingRoom = room; // 내가 첫 입장이니, 다음 입장할 유저를 위해 PendingRoom에 저장
+            }
+            
+            // dic 부터 저장해야, 멀티스레드 환경에서 안전하게 동작함
+            Rooms[room.RoomId] = room;
             SessionIdRoomId[user.SessionId] = room.RoomId;
+
             room.Enter(user);
+            return room;
         }
     }
+
 
     public void Leave(User user) // todo use
     {
@@ -26,8 +48,8 @@ public class RoomManager
 
         SessionIdRoomId.Remove(user.SessionId); // dic 부터 저장해야, 멀티스레드 환경에서 안전하게 동작함
 
-        var isRoomDeactivated = room.Leave(user);
-        if (isRoomDeactivated)
+        room.Leave(user);
+        if (room.RoomState == RoomState.Deactivated)
         {
             Rooms.Remove(roomId);
             RoomPool.ReturnToPool(room);
@@ -39,7 +61,7 @@ public class Room
 {
     private static int RoomIdx = 0;
     public int RoomId { get; private set; }
-    public bool IsActive { get; set; } = true; // todo 삭제 검토
+    public RoomState RoomState { get; private set; }
     private Dictionary<string, User> ConnectedUsers = new Dictionary<string, User>();
 
     public Room()
@@ -47,32 +69,43 @@ public class Room
         RoomId = ++RoomIdx;
     }
 
-    public void Init()
-    {
-        IsActive = true;
-    }
-
     public void Enter(User user)
     {
         // 활성화
-        if (!IsActive)
-            Init();
+        if (RoomState == RoomState.Deactivated)
+            RoomState = RoomState.Waiting;
 
         ConnectedUsers.Add(user.SessionId, user);
     }
 
-    /// <returns>bool isRoomDeactivated: 해당 방이 비활성화되면 true를 리턴합니다.</returns>
-    public bool Leave(User user)
+    public void Leave(User user)
     {
         ConnectedUsers.Remove(user.SessionId);
 
         // 비활성화
         if (ConnectedUsers.Count == 0)
-        {
-            IsActive = false;
-            return true;
-        }
-
-        return false;
+            RoomState = RoomState.Deactivated;
     }
+
+    public void Start()
+    { 
+        RoomState = RoomState.Playing;
+    }
+
+    public bool IsFull()
+    {
+        return ConnectedUsers.Count >= DIContainer.Get<GameOption>().MaxUserCountPerRoom;
+    }
+
+    public bool IsReadyToStart()
+    {
+        return RoomState <= RoomState.Waiting && IsFull();
+    }
+}
+
+public enum RoomState
+{
+    Deactivated,
+    Waiting,
+    Playing
 }
