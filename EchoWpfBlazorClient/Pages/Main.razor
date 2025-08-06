@@ -10,42 +10,42 @@
 <link href="_content/Radzen.Blazor/css/default-base.css" rel="stylesheet" />
 <link href="_content/Radzen.Blazor/css/default.css" rel="stylesheet" />
 
-<h3 class="mt-4 mb-2">TCP Echo Client</h3>
+<div style="padding: 20px;">
+    <h3 class="mt-4 mb-2">TCP Echo Client</h3>
 
-<RadzenFieldset Text="Connection">
-    <RadzenRow Width="6">
-        <RadzenTextBox @bind-Value="IpAddress" Name="IP" Style="width: 200px;" Placeholder="IP Address" />
-        <RadzenCheckBox @bind-Value="UseLocalhost" Name="Localhost" Style="margin-top: 5px;" />
-        <label style="margin-left: 5px;">Use Localhost</label>
-    </RadzenRow>
-    <RadzenRow Width="6">
-        <RadzenNumeric @bind-Value="Port" Name="Port" Style="width: 200px;" />
-    </RadzenRow>
+    <RadzenFieldset Text="Connection">
+        <RadzenRow>
+            <h5>@StatusMessage</h5>
+        </RadzenRow>
+        <RadzenRow>
+            <RadzenTextBox @bind-Value="IpAddress" Name="IP" Style="width: 200px;" Placeholder="IP Address" />
+            <RadzenNumeric @bind-Value="Port" Name="Port" Style="width: 100px;" />
+            @if (IsConnected)
+            {
+                <RadzenButton Text="Disconnect" Click="Disconnect" Icon="link_off" ButtonStyle="ButtonStyle.Danger" />
+            }
+            else
+            {
+                <RadzenButton Text="Connect" Click="Connect" Icon="link" Style="margin-right: 5px;" />
+            }
+        </RadzenRow>
+    </RadzenFieldset>
 
-    <RadzenRow Class="mt-2">
-        <RadzenColumn Width="6">
-            <RadzenButton Text="Connect" Click="Connect" Disabled="@IsConnected" Icon="link"
-                Style="margin-right: 5px;" />
-            <RadzenButton Text="Disconnect" Click="Disconnect" Disabled="@(IsConnected == false)" Icon="link_off"
-                ButtonStyle="ButtonStyle.Danger" />
-        </RadzenColumn>
-    </RadzenRow>
+    <RadzenFieldset Text="Message">
+        <div style="display: flex; gap: 10px;">
+            <RadzenTextBox @bind-Value="SendText" Name="Message" Style="flex-grow: 1;"
+                Placeholder="Enter message to send" />
 
-    <h4>Status: @StatusMessage</h4>
-</RadzenFieldset>
+            <RadzenButton Text="Send" Click="Send" Icon="send" ButtonStyle="ButtonStyle.Primary"
+                Style="width: 100px;" />
+        </div>
 
-<RadzenFieldset Text="Message">
-    <div style="display: flex; gap: 10px;">
-        <RadzenTextBox @bind-Value="SendText" Name="Message" Style="flex-grow: 1;"
-            Placeholder="Enter message to send" />
-
-        <RadzenButton Text="Send" Click="Send" Icon="send" ButtonStyle="ButtonStyle.Primary" Style="width: 100px;" />
-    </div>
-
-    <div style="white-space: pre-line; font-family: monospace; max-height: 300px; overflow-y: auto; margin-top: 10px;">
-        @((MarkupString)string.Join("\n", LogState.GetReversedLogs()))
-    </div>
-</RadzenFieldset>
+        <div
+            style="white-space: pre-line; font-family: monospace; max-height: 300px; overflow-y: auto; margin-top: 10px;">
+            @((MarkupString)string.Join("\n", LogState.GetReversedLogs()))
+        </div>
+    </RadzenFieldset>
+</div>
 
 @code {
     string IpAddress = "127.0.0.1";
@@ -75,7 +75,6 @@
     {
         try
         {
-            if (UseLocalhost) IpAddress = "127.0.0.1";
             ServerClient.Configure(IpAddress, Port);
 
             await ServerClient.ConnectAsync();
