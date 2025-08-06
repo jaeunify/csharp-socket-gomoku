@@ -12,14 +12,14 @@ public partial class PacketProcessor
     private IPktBinarySender BinarySender;
 
     public PacketProcessor(IPktBinarySender packetSender)
-    { 
+    {
         // MainServer의 바이너리 Sender 인터페이스 등록
         BinarySender = packetSender;
 
         // 패킷 핸들러 등록
         PacketHandlerMap = new Dictionary<PacketId, Action<PktBinaryRequestInfo>>
         {
-            { PacketId.Connect, ConnectProcess },
+            { PacketId.Enter, EnterProcess },
         };
     }
 
