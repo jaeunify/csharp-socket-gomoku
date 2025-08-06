@@ -3,7 +3,7 @@ using SuperSocketLite.SocketBase.Protocol;
 using SuperSocketLite.SocketBase.Config;
 using GomokuPacket;
 
-class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
+class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>, IPktBinarySender
 {
     private PacketProcessor PacketProcessor { get; set; }
 
@@ -36,7 +36,7 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
                 return;
             }
 
-            PacketProcessor = new PacketProcessor();
+            PacketProcessor = new PacketProcessor(this);
             PacketProcessor.CreateAndStart();
 
             Logger.Info($"[{DateTime.Now}] 서버 생성 성공");
@@ -82,6 +82,26 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
         // dataSource.AddRange(BitConverter.GetBytes((Int16)reqInfo.PacketID));
         // dataSource.AddRange(reqInfo.Body);
         // session.Send(dataSource.ToArray(), 0, dataSource.Count);
+    }
+
+    public void Send(string sessionId, byte[] data)
+    {
+        var session = GetSessionByID(sessionId);
+
+        try
+        {
+            if (session == null)
+            {
+                return;
+            }
+
+            session.Send(data, 0, data.Length);
+        }
+        catch (Exception)
+        {
+            session.SendEndWhenSendingTimeOut();
+            session.Close();
+        }
     }
 }
 

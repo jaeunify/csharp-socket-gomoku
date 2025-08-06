@@ -8,9 +8,14 @@ public partial class PacketProcessor
     private Dictionary<PacketId, Action<PktBinaryRequestInfo>> PacketHandlerMap;
 
     private BufferBlock<PktBinaryRequestInfo> MsgBuffer = new();
+    private IPktBinarySender PacketSender;
 
-    public PacketProcessor()
+    public PacketProcessor(IPktBinarySender packetSender)
     { 
+        // MainServer의 바이너리 Sender 인터페이스 등록
+        PacketSender = packetSender;
+
+        // 패킷 핸들러 등록
         PacketHandlerMap = new Dictionary<PacketId, Action<PktBinaryRequestInfo>>
         {
             { PacketId.Connect, ConnectProcess },
@@ -34,7 +39,7 @@ public partial class PacketProcessor
                 // TODO log
 
                 if (PacketHandlerMap.TryGetValue(packet.PacketID, out var handler))
-                    handler(packet);
+                    handler(packet); // todo PktBinaryRequestInfo 에서 packet으로 deseriazlize해서 handler 호출
             }
             catch (ServerException ex)
             {
