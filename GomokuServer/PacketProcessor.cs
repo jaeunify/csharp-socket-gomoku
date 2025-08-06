@@ -1,20 +1,24 @@
 using System.Threading.Tasks.Dataflow;
 using GomokuPacket;
 
-public class PacketProcessor
+public partial class PacketProcessor
 {
     bool IsThreadRunning = false;
 
-    private Dictionary<PacketId, Action<PktBinaryRequestInfo>> PacketHandlerMap = new();
+    private Dictionary<PacketId, Action<PktBinaryRequestInfo>> PacketHandlerMap;
 
     private BufferBlock<PktBinaryRequestInfo> MsgBuffer = new();
 
+    public PacketProcessor()
+    { 
+        PacketHandlerMap = new Dictionary<PacketId, Action<PktBinaryRequestInfo>>
+        {
+            { PacketId.Connect, ConnectProcess },
+        };
+    }
+
     public void CreateAndStart()
     {
-        // Regist Packet Handler
-        CommonHandler.RegistPacketHandler(PacketHandlerMap);
-        RoomHandler.RegistPacketHandler(PacketHandlerMap);
-
         IsThreadRunning = true;
         new Thread(this.Process).Start();
     }
@@ -29,8 +33,8 @@ public class PacketProcessor
 
                 // TODO log
 
-                if (PacketHandlerMap.ContainsKey(packet.PacketID))
-                    PacketHandlerMap[packet.PacketID](packet);
+                if (PacketHandlerMap.TryGetValue(packet.PacketID, out var handler))
+                    handler(packet);
             }
             catch (ServerException ex)
             {
@@ -44,6 +48,8 @@ public class PacketProcessor
                 {
                     // TODO log
                 }
+
+                continue;
             }
         }
     }
