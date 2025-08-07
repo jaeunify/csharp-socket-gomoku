@@ -109,7 +109,7 @@ public class Room
 
     public bool IsFull()
     {
-        return ConnectedUsers.Count >= DIContainer.Get<GameOption>().MaxUserCountPerRoom;
+        return ConnectedUsers.Count >= 2;
     }
 
     public bool IsReadyToStart()
@@ -120,6 +120,11 @@ public class Room
     public List<User> GetUsers()
     {
         return ConnectedUsers.Values.ToList();
+    }
+
+    public User? GetOtherUser(string sessionId)
+    {
+        return ConnectedUsers.Values.FirstOrDefault(user => user.SessionId != sessionId);
     }
 
     public int GetUserCount()
