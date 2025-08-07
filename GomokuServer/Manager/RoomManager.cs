@@ -174,6 +174,50 @@ public class Room
 
     public bool IsGameEnd()
     {
+        if (Board == null)
+            return false;
+
+        int size = Board.Count;
+
+        // 4가지 방향 (오른쪽, 아래, 오른쪽아래, 왼쪽아래)
+        int[][] directions = new int[][]
+        {
+        new int[] { 1, 0 },   // →
+        new int[] { 0, 1 },   // ↓
+        new int[] { 1, 1 },   // ↘
+        new int[] { -1, 1 }   // ↙
+        };
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                int stone = Board[y][x];
+                if (stone == -1) continue; // 빈 칸이면 무시
+
+                foreach (var dir in directions)
+                {
+                    int dx = dir[0];
+                    int dy = dir[1];
+
+                    int count = 1;
+
+                    int nx = x + dx;
+                    int ny = y + dy;
+
+                    while (nx >= 0 && ny >= 0 && nx < size && ny < size && Board[ny][nx] == stone)
+                    {
+                        count++;
+                        if (count == 5)
+                            return true;
+
+                        nx += dx;
+                        ny += dy;
+                    }
+                }
+            }
+        }
+
         return false;
     }
 }
