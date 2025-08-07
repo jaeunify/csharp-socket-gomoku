@@ -34,21 +34,20 @@ public partial class PacketProcessor
     {
         while (IsThreadRunning)
         {
+            var serializedPacket = MsgBuffer.Receive();
+            var senderSessionId = serializedPacket.SessionId;
+
             try
             {
-                var serializedPacket = MsgBuffer.Receive();
-
                 if (PacketHandlerMap.TryGetValue(serializedPacket.PacketID, out var handle) == false)
                     continue;
 
                 var packet = MessagePackSerializer.Deserialize<Packet>(serializedPacket.Body);
-                handle(serializedPacket.SessionId, packet);
+                handle(senderSessionId, packet);
             }
             catch (ServerException ex)
             {
-                // TODO error packet send
-
-                continue;
+                SendPacket(senderSessionId, new ErrorPacket() { ErrorCode = ex.ErrorCode });
             }
             catch (Exception ex)
             {
