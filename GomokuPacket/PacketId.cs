@@ -6,4 +6,6 @@ public enum PacketId : Int16
     None = 0,
     Enter = 1,
     GameStart = 2,
+    SetRock = 3,
+    GameEnd = 4,
 }

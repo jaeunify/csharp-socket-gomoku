@@ -20,6 +20,7 @@ public partial class PacketProcessor
         PacketHandlerMap = new Dictionary<PacketId, Action<string, Packet>>
         {
             { PacketId.Enter, EnterProcess },
+            { PacketId.SetRock, SetRockProcess },
         };
     }
 

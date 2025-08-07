@@ -67,6 +67,7 @@
         SendAblePackets = new Dictionary<PacketId, (Type packetType, string DefaultInput)>
 {
 { PacketId.Enter, (typeof(EnterPacket), JsonSerializer.Serialize(new EnterPacket())) },
+{ PacketId.SetRock, (typeof(SetRockPacket), JsonSerializer.Serialize(new SetRockPacket(){X = 0, Y = 0})) },
 };
 
         packetIds = SendAblePackets.Keys.ToList();

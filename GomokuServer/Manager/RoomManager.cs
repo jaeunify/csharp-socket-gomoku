@@ -2,8 +2,8 @@ using GomokuPacket;
 
 public class RoomManager
 {
-    private Dictionary<int, Room> Rooms = new Dictionary<int, Room>();
-    private Dictionary<string, int> SessionIdRoomId = new Dictionary<string, int>(); // session id 로 Room 을 빠르게 찾기 위해 저장
+    private Dictionary<int, Room> Rooms = new Dictionary<int, Room>(); // roomId-Room 매핑
+    private Dictionary<string, int> SessionIdRoomId = new Dictionary<string, int>(); // sessionId-RoomId 매핑
     private Room? PendingRoom = null;
 
     public Room Enter(User user)
@@ -36,11 +36,10 @@ public class RoomManager
         }
     }
 
-
     public void Leave(User user) // todo use
     {
         if (!SessionIdRoomId.TryGetValue(user.SessionId, out int roomId))
-            throw new ServerException(ERROR_CODE.UNKNOWN_USER);
+            throw new ServerException(ERROR_CODE.UNENTERED_USER);
 
         if (!Rooms.TryGetValue(roomId, out var room))
             throw new Exception("impossible fatal error: room not found");
@@ -51,6 +50,17 @@ public class RoomManager
         if (room.GetUserCount() <= 0)
             Rooms.Remove(roomId);
     }
+
+    public Room GetRoom(string sesssionId)
+    {
+        if (!SessionIdRoomId.TryGetValue(sesssionId, out int roomId))
+            throw new ServerException(ERROR_CODE.UNENTERED_USER);
+
+        if (!Rooms.TryGetValue(roomId, out var room))
+            throw new Exception("impossible fatal error: room not found");
+
+        return room;
+    }
 }
 
 public class Room
@@ -58,17 +68,20 @@ public class Room
     // Room
     private static int RoomIdx = 0;
     public int RoomId { get; private set; }
-    public RoomState RoomState { get; private set; }
-    private Dictionary<string, User> ConnectedUsers = new Dictionary<string, User>();
+    public bool IsPlaying { get; private set; } = false;
+    private Dictionary<string, User> ConnectedUsers = new Dictionary<string, User>(); // sessionId-User 매핑
 
-    public void Dispose()
+    // Game
+    private List<List<int>>? Board;
+
+    public Room()
     {
-        ConnectedUsers.Clear();
+        RoomId = RoomIdx++;
     }
 
     public void Enter(User user)
     {
-        ConnectedUsers.Add(user.SessionId, user);
+        ConnectedUsers[user.SessionId] = user;
     }
 
     public void Leave(User user)
@@ -78,7 +91,20 @@ public class Room
 
     public void Start()
     {
-        RoomState = RoomState.Playing;
+        IsPlaying = true;
+
+        // 보드를 초기화합니다.
+        Board = new List<List<int>>();
+        var boardSize = DIContainer.Get<GameOption>().BoardSize;
+        for (int i = 0; i < boardSize; i++)
+        {
+            var row = new List<int>();
+            for (int j = 0; j < boardSize; j++)
+            {
+                row.Add(-1);
+            }
+            Board.Add(row);
+        }
     }
 
     public bool IsFull()
@@ -88,7 +114,7 @@ public class Room
 
     public bool IsReadyToStart()
     {
-        return RoomState <= RoomState.Waiting && IsFull();
+        return !IsPlaying && IsFull();
     }
 
     public List<User> GetUsers()
@@ -100,10 +126,21 @@ public class Room
     {
         return ConnectedUsers.Count;
     }
-}
 
-public enum RoomState
-{
-    Waiting,
-    Playing
+    /// <summary>
+    /// 수를 놓습니다.
+    /// </summary>
+    /// <returns>게임이 종료되었는지 리턴합니다.</returns>
+    public bool SetRock(string sessionId, int x, int y)
+    {
+        if (IsPlaying == false)
+            throw new ServerException(ERROR_CODE.GAME_UNSTARTED);
+
+        return IsGameEnd();
+    }
+
+    public bool IsGameEnd()
+    {
+        return false;
+    }
 }

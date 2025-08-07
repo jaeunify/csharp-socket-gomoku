@@ -3,7 +3,10 @@ using MessagePack;
 namespace GomokuPacket;
 
 [MessagePackObject]
-[Union(0, typeof(EnterPacket))]
+[Union((short)PacketId.Enter, typeof(EnterPacket))]
+[Union((short)PacketId.GameStart, typeof(GameStartPacket))]
+[Union((short)PacketId.SetRock, typeof(SetRockPacket))]
+[Union((short)PacketId.GameEnd, typeof(GameEndPacket))]
 public abstract class Packet
 {
     [Key(0)]
