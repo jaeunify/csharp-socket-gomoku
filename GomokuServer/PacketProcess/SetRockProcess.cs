@@ -10,8 +10,6 @@ public partial class PacketProcessor
         var IsGameEnd = room.SetRock(SenderSessionId, packet.X, packet.Y);
 
         var otherUser = room.GetOtherUser(SenderSessionId);
-        if (otherUser == null)
-            throw new Exception("fatal error. Other user not found in the room.");
 
         // 상대 유저에게 수를 놓았음을 알립니다.
         SendPacket(otherUser.SessionId, _packet);

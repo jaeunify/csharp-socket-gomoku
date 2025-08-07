@@ -15,13 +15,10 @@ public partial class PacketProcessor
         {
             room.Start();
 
-            var users = room.GetUsers();
-            var firstUser = users[0];
-            var otherUser = users[1];
-
-            // 선 입장자가 흑돌입니다.
-            SendPacket(firstUser.SessionId, new GameStartPacket() { AmIFirst = true });
-            SendPacket(otherUser.SessionId, new GameStartPacket() { AmIFirst = false });
+            var otherUser = room.GetOtherUser(sessionID);
+            var IsMyTurn = room.IsMyTurn(sessionID);
+            SendPacket(user.SessionId, new GameStartPacket() { AmIFirst = IsMyTurn });
+            SendPacket(otherUser.SessionId, new GameStartPacket() { AmIFirst = !IsMyTurn });
         }
 
     }

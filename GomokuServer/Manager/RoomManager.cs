@@ -66,17 +66,18 @@ public class RoomManager
 public class Room
 {
     // Room
-    private static int RoomIdx = 0;
+    private static int RoomIdCounter = 0;
     public int RoomId { get; private set; }
     public bool IsPlaying { get; private set; } = false;
     private Dictionary<string, User> ConnectedUsers = new Dictionary<string, User>(); // sessionId-User 매핑
+    private string turnSessionId;
 
     // Game
     private List<List<int>>? Board;
 
     public Room()
     {
-        RoomId = RoomIdx++;
+        RoomId = RoomIdCounter++;
     }
 
     public void Enter(User user)
@@ -105,6 +106,11 @@ public class Room
             }
             Board.Add(row);
         }
+
+        // 선 플레이어를 정합니다.
+        var users = GetUsers();
+        var random = new Random().Next(0, 2); // 0 또는 1을 랜덤으로 선택
+        turnSessionId = users[random].SessionId;
     }
 
     public bool IsFull()
@@ -117,14 +123,20 @@ public class Room
         return !IsPlaying && IsFull();
     }
 
+    public bool IsMyTurn(string sessionId)
+    {
+        return turnSessionId == sessionId;
+    }
+
     public List<User> GetUsers()
     {
         return ConnectedUsers.Values.ToList();
     }
 
-    public User? GetOtherUser(string sessionId)
+    public User GetOtherUser(string sessionId)
     {
-        return ConnectedUsers.Values.FirstOrDefault(user => user.SessionId != sessionId);
+        return ConnectedUsers.Values.FirstOrDefault(user => user.SessionId != sessionId)
+        ?? throw new Exception("impossible fatal error: other user not found");
     }
 
     public int GetUserCount()
@@ -138,8 +150,24 @@ public class Room
     /// <returns>게임이 종료되었는지 리턴합니다.</returns>
     public bool SetRock(string sessionId, int x, int y)
     {
-        if (IsPlaying == false)
+        if (IsPlaying == false || Board == null)
             throw new ServerException(ERROR_CODE.GAME_UNSTARTED);
+
+        if (!IsMyTurn(sessionId))
+            throw new ServerException(ERROR_CODE.NOT_MY_TURN);
+
+        if (x < 0 || y < 0 || x >= Board.Count || y >= Board[x].Count)
+            throw new ServerException(ERROR_CODE.INVALID_ROCK_POSITION);
+
+        var board = Board;
+
+        if (Board[y][x] != -1)
+            throw new ServerException(ERROR_CODE.ALREADY_SET_ROCK_POSITION);
+
+        Board[y][x] = ConnectedUsers[sessionId].UserId;
+
+        // 다음 턴을 상대 유저로 변경합니다.
+        turnSessionId = GetOtherUser(sessionId).SessionId;
 
         return IsGameEnd();
     }
