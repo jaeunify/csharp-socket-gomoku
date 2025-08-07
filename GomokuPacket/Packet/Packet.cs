@@ -3,6 +3,7 @@ using MessagePack;
 namespace GomokuPacket;
 
 [MessagePackObject]
+[Union((short)PacketId.Error, typeof(ErrorPacket))]
 [Union((short)PacketId.Enter, typeof(EnterPacket))]
 [Union((short)PacketId.GameStart, typeof(GameStartPacket))]
 [Union((short)PacketId.SetRock, typeof(SetRockPacket))]

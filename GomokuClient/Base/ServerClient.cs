@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Concurrent;
 using GomokuPacket;
 using MessagePack;
+using System.Text.Json;
 
 public class ServerClient : Instance
 {
@@ -111,8 +112,17 @@ public class ServerClient : Instance
             byte[] body = new byte[totalSize - HEADER_SIZE];
             Buffer.BlockCopy(data, offset + HEADER_SIZE, body, 0, body.Length);
 
-            string msg = Encoding.UTF8.GetString(body);
-            LogStore?.AddLog($"[서버 응답] PacketID: {packetId}, Message: {msg}");
+            if (packetId != 0)
+            {
+                var packet = MessagePackSerializer.Deserialize<Packet>(body);
+                var runtimeType = packet.GetType();
+                var json = JsonSerializer.Serialize(Convert.ChangeType(packet, runtimeType));
+                LogStore?.AddLog($"[응답] {json}");
+            }
+            else
+            { 
+                LogStore?.AddLog($"[응답] PacketID: {packetId}, Message: {body}");
+            }
 
             RecvPacketQueue.Enqueue((packetId, body));
             offset += totalSize;
