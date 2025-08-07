@@ -62,16 +62,26 @@
 
     protected override void OnInitialized()
     {
+        // 서버에서 받은 패킷으로 로그가 변경되면 ui 갱신
         LogState.OnChange += HandleLogChange;
+        
+        // 서버에서 에러 메시지를 받으면 alert로 표시
+        ServerClient.OnErrorMessage = async (msg) =>
+        {
+            await InvokeAsync(() => Js.InvokeVoidAsync("alert", msg));
+        };
 
+        // 패킷ID - 패킷 타입, 기본 입력값 매핑
         SendAblePackets = new Dictionary<PacketId, (Type packetType, string DefaultInput)>
-{
-{ PacketId.Enter, (typeof(EnterPacket), JsonSerializer.Serialize(new EnterPacket())) },
-{ PacketId.SetRock, (typeof(SetRockPacket), JsonSerializer.Serialize(new SetRockPacket(){X = 0, Y = 0})) },
-};
+        {
+            { PacketId.Enter, (typeof(EnterPacket), JsonSerializer.Serialize(new EnterPacket())) },
+            { PacketId.SetRock, (typeof(SetRockPacket), JsonSerializer.Serialize(new SetRockPacket(){X = 0, Y = 0})) },
+        };
 
+        // 전송 가능한 패킷 ID 목록
         packetIds = SendAblePackets.Keys.ToList();
 
+        // EnterPacket을 기본 입력값으로 설정
         ChangePacketId(PacketId.Enter);
     }
 
@@ -83,6 +93,7 @@
     public void Dispose()
     {
         LogState.OnChange -= HandleLogChange;
+        ServerClient.OnErrorMessage = null;
     }
 
     async Task Connect()
