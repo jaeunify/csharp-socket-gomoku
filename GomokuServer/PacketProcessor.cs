@@ -9,12 +9,12 @@ public partial class PacketProcessor
     private Dictionary<PacketId, Action<string, Packet>> PacketHandlerMap;
 
     private BufferBlock<PktBinaryRequestInfo> MsgBuffer = new();
-    private IPktBinarySender BinarySender;
+    private Action<string, byte[]> SendBinaryAction;
 
-    public PacketProcessor(IPktBinarySender packetSender)
+    public PacketProcessor(Action<string, byte[]> sendBinaryFunction)
     {
-        // MainServer의 바이너리 Sender 인터페이스 등록
-        BinarySender = packetSender;
+        // MainServer의 바이너리 Send 함수 등록
+        SendBinaryAction = sendBinaryFunction;
 
         // 패킷 핸들러 등록
         PacketHandlerMap = new Dictionary<PacketId, Action<string, Packet>>
@@ -81,6 +81,6 @@ public partial class PacketProcessor
         dataSource.AddRange(BitConverter.GetBytes((Int16)packet.PacketId));
         dataSource.AddRange(body);
 
-        BinarySender.Send(sessionId, dataSource.ToArray());
+        SendBinaryAction(sessionId, dataSource.ToArray());
     }
 }
