@@ -129,9 +129,13 @@
             await ServerClient.SendAsync(packet);
             LogState.AddLog($"SEND {PacketId} {Input}");
         }
-        catch (Exception ex)
+        catch (JsonException)
         {
-            await Js.InvokeVoidAsync("alert", "패킷 내용이 형식에 맞지 않습니다.");
+            await Js.InvokeVoidAsync("alert", "입력 내용이 패킷 형식에 맞지 않습니다.");
+        }
+        catch
+        {
+            throw;
         }
     }
 

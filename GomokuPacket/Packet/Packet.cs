@@ -3,7 +3,8 @@ using MessagePack;
 namespace GomokuPacket;
 
 [MessagePackObject]
-public class Packet
+[Union(0, typeof(EnterPacket))]
+public abstract class Packet
 {
     [Key(0)]
     public PacketId PacketId { get; protected  set; }
