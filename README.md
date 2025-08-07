@@ -36,20 +36,20 @@
   - [x] 로그 및 에러 처리 추가
   - [x] README 작성
 
-- [ ] Step 3 오목 서버 개발 (8/5~8/6)
+- [x] Step 3 오목 서버 개발 (8/5~8/6)
 
-  - [ ] 오목 플레이어 세션 관리 (`GomokuSession`)
-  - [ ] 좌표 송수신 프로토콜 설계 (예: `PUT x y`)
-  - [ ] 게임 상태 저장 및 룰 검증 (`GomokuGameRoom`)
-  - [ ] 콘솔 클라이언트에서 플레이 테스트 가능하도록 구현
-  - [ ] 승패 판단 및 게임 종료 로직
+  - [x] 오목 플레이어 세션 관리 (`GomokuSession`)
+  - [x] 좌표 송수신 프로토콜 설계 (예: `PUT x y`)
+  - [x] 게임 상태 저장 및 룰 검증 (`GomokuGameRoom`)
+  - [x] 콘솔 클라이언트에서 플레이 테스트 가능하도록 구현
+  - [x] 승패 판단 및 게임 종료 로직
   - [x] README 작성
 
 - [ ] Step 4 오목 클라이언트 개발 (8/7)
 
-  - [ ] WFP 기반 오목 클라이언트 제작
+  - [x] WFP 기반 오목 클라이언트 제작
   - [ ] 명령어 입력 및 보드 출력 구현
-  - [ ] 클라이언트 간 통신 테스트 (2인 대전 시뮬레이션)
+  - [x] 클라이언트 간 통신 테스트 (2인 대전 시뮬레이션)
   - [ ] 리팩토링 및 코드 정리
   - [ ] README 작성
 
@@ -95,9 +95,9 @@
 - 패킷 수신은 비동기적으로 처리되며, 실제 처리 로직은 `PacketProcessor`의 싱글 스레드에서 순차적으로 수행
 - 구조적으로 안정성과 순서를 보장하는 싱글 스레드 큐 기반 처리 방식
 
-### GomokuProtocol
+### GomokuPacket
 - 클라이언트와 서버 간 통신에 사용되는 공통 패킷 정의 모음
-- `MemoryPack`을 사용한 직렬화 구조
+- `MemoryPack`을 사용한 직렬화 구조, Union을 통해 Packet 상속
 - 패킷 ID와 패킷 본문으로 구성되는 바이너리 프로토콜을 기반으로 동작
 - Request / Response 가 따로 없는 구조
 
@@ -112,16 +112,16 @@ sequenceDiagram
         participant s as Server
         actor c2 as Client-2
 
-        c1->>s: Connect
-        c2->>s: Connect
+        c1->>s: Enter
+        c2->>s: Enter
 
         s->>c1: GameStart
         s->> c2: GameStart
 
-        c1->>s: Set
-        s->>c2: Set
+        c1->>s: SetRock
+        s->>c2: SetRock
 
-        c2->>s: Set
+        c2->>s: SetRock
         s->>c1: GameEnd
         s->>c2: GameEnd
 
