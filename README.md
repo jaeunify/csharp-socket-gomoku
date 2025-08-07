@@ -95,9 +95,9 @@
 - 패킷 수신은 비동기적으로 처리되며, 실제 처리 로직은 `PacketProcessor`의 싱글 스레드에서 순차적으로 수행
 - 구조적으로 안정성과 순서를 보장하는 싱글 스레드 큐 기반 처리 방식
 
-### GomokuProtocol
+### GomokuPacket
 - 클라이언트와 서버 간 통신에 사용되는 공통 패킷 정의 모음
-- `MemoryPack`을 사용한 직렬화 구조
+- `MemoryPack`을 사용한 직렬화 구조, Union을 통해 Packet 상속
 - 패킷 ID와 패킷 본문으로 구성되는 바이너리 프로토콜을 기반으로 동작
 - Request / Response 가 따로 없는 구조
 
