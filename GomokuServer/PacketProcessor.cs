@@ -6,7 +6,7 @@ public partial class PacketProcessor
 {
     bool IsThreadRunning = false;
 
-    private Dictionary<PacketId, Action<Packet>> PacketHandlerMap;
+    private Dictionary<PacketId, Action<string, Packet>> PacketHandlerMap;
 
     private BufferBlock<PktBinaryRequestInfo> MsgBuffer = new();
     private IPktBinarySender BinarySender;
@@ -17,7 +17,7 @@ public partial class PacketProcessor
         BinarySender = packetSender;
 
         // 패킷 핸들러 등록
-        PacketHandlerMap = new Dictionary<PacketId, Action<Packet>>
+        PacketHandlerMap = new Dictionary<PacketId, Action<string, Packet>>
         {
             { PacketId.Enter, EnterProcess },
         };
@@ -41,7 +41,7 @@ public partial class PacketProcessor
                     continue;
 
                 var packet = MessagePackSerializer.Deserialize<Packet>(serializedPacket.Body);
-                handle(packet);
+                handle(serializedPacket.SessionId, packet);
             }
             catch (ServerException ex)
             {

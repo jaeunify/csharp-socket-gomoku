@@ -9,7 +9,6 @@ public class UserManager
         if (IsUserCountFull())
             throw new ServerException(ERROR_CODE.USER_COUNT_FULL);
 
-
         if (ConnectedUsers.ContainsKey(sessionId))
             throw new ServerException(ERROR_CODE.USER_ALREADY_EXIST);
 

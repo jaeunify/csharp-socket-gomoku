@@ -66,7 +66,7 @@
 
         SendAblePackets = new Dictionary<PacketId, (Type packetType, string DefaultInput)>
 {
-{ PacketId.Enter, (typeof(EnterPacket), JsonSerializer.Serialize(new EnterPacket { SenderSessionId = "Player1" })) },
+{ PacketId.Enter, (typeof(EnterPacket), JsonSerializer.Serialize(new EnterPacket())) },
 };
 
         packetIds = SendAblePackets.Keys.ToList();

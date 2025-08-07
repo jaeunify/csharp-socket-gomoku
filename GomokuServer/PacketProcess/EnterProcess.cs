@@ -2,11 +2,11 @@ using GomokuPacket;
 
 public partial class PacketProcessor
 {
-    public void EnterProcess(Packet _packet)
+    public void EnterProcess(string SenderSessionId, Packet _packet)
     {
         var packet = (EnterPacket)_packet;
 
-        var sessionID = packet.SenderSessionId;
+        var sessionID = SenderSessionId;
         var user = DIContainer.Get<UserManager>().AddUser(sessionID);
         var room = DIContainer.Get<RoomManager>().Enter(user);
         if (room.IsReadyToStart())
