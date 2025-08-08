@@ -33,7 +33,7 @@ public class Room
 
         // 보드를 초기화합니다.
         Board = new List<List<int>>();
-        var boardSize = DIContainer.Get<GameOption>().BoardSize;
+        var boardSize = GameOption.BoardSize;
         for (int i = 0; i < boardSize; i++)
         {
             var row = new List<int>();

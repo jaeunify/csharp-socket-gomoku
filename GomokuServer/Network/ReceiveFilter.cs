@@ -3,7 +3,7 @@ using SuperSocketLite.SocketEngine.Protocol;
 
 public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
 {
-    public ReceiveFilter() : base(DIContainer.Get<ServerOption>().HeaderSize)
+    public ReceiveFilter() : base(ServerOption.HeaderSize)
     {
     }
 
@@ -15,14 +15,14 @@ public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
         }
 
         var packetTotalSize = BitConverter.ToUInt16(header, offset);
-        return packetTotalSize - DIContainer.Get<ServerOption>().HeaderSize;
+        return packetTotalSize - ServerOption.HeaderSize;
     }
 
     protected override PktBinaryRequestInfo ResolveRequestInfo(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length)
     {
         if (!BitConverter.IsLittleEndian)
         {
-            Array.Reverse(header.Array, 0, DIContainer.Get<ServerOption>().HeaderSize);
+            Array.Reverse(header.Array, 0, ServerOption.HeaderSize);
         }
 
         return new PktBinaryRequestInfo(BitConverter.ToUInt16(header.Array, 0),

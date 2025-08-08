@@ -1,10 +1,10 @@
 using GomokuPacket;
 
-public class UserManager
+public static class UserManager
 {
-    private Dictionary<string, User> ConnectedUsers = new Dictionary<string, User>();
+    private static Dictionary<string, User> ConnectedUsers = new Dictionary<string, User>();
 
-    public (ERROR_CODE ErrorCode, User? User) AddUser(string sessionId)
+    public static (ERROR_CODE ErrorCode, User? User) AddUser(string sessionId)
     {
         if (IsUserCountFull())
             return (ERROR_CODE.USER_COUNT_FULL, null);
@@ -17,7 +17,7 @@ public class UserManager
         return (ERROR_CODE.NONE, user);
     }
 
-    public (ERROR_CODE ErrorCode, User? User) GetUser(string sessionId) // todo 삭제 고려
+    public static (ERROR_CODE ErrorCode, User? User) GetUser(string sessionId) // todo 삭제 고려
     {
         if (!ConnectedUsers.TryGetValue(sessionId, out var user))
             return (ERROR_CODE.UNKNOWN_USER, null);
@@ -25,9 +25,9 @@ public class UserManager
         return (ERROR_CODE.NONE, user);
     }
 
-    private bool IsUserCountFull()
+    private static bool IsUserCountFull()
     {
-        var maxUserCount = DIContainer.Get<GameOption>().MaxUserCountPerServer;
+        var maxUserCount = GameOption.MaxUserCountPerServer;
         return ConnectedUsers.Count >= maxUserCount;
     }
 }

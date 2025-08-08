@@ -6,7 +6,7 @@ public partial class PacketProcessor
     {
         var packet = (SetRockPacket)_packet;
 
-        var (roomGetResut, room) = DIContainer.Get<RoomManager>().GetRoom(SenderSessionId);
+        var (roomGetResut, room) = RoomManager.GetRoom(SenderSessionId);
         if (roomGetResut != ERROR_CODE.NONE || room is null)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = roomGetResut });

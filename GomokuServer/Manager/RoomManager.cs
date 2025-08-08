@@ -1,12 +1,12 @@
 using GomokuPacket;
 
-public class RoomManager
+public static class RoomManager
 {
-    private Dictionary<int, Room> Rooms = new Dictionary<int, Room>(); // roomId-Room 매핑
-    private Dictionary<string, int> SessionIdRoomId = new Dictionary<string, int>(); // sessionId-RoomId 매핑
-    private Room? PendingRoom = null;
+    private static Dictionary<int, Room> Rooms = new Dictionary<int, Room>(); // roomId-Room 매핑
+    private static Dictionary<string, int> SessionIdRoomId = new Dictionary<string, int>(); // sessionId-RoomId 매핑
+    private static Room? PendingRoom = null;
 
-    public Room Enter(User user)
+    public static Room Enter(User user)
     {
         if (SessionIdRoomId.TryGetValue(user.SessionId, out var roomId))
         {
@@ -36,7 +36,7 @@ public class RoomManager
         }
     }
 
-    public ERROR_CODE Leave(User user) // todo use
+    public static ERROR_CODE Leave(User user) // todo use
     {
         if (!SessionIdRoomId.TryGetValue(user.SessionId, out int roomId))
         {
@@ -59,7 +59,7 @@ public class RoomManager
         return ERROR_CODE.NONE;
     }
 
-    public (ERROR_CODE errorCode, Room? room) GetRoom(string sesssionId)
+    public static (ERROR_CODE errorCode, Room? room) GetRoom(string sesssionId)
     {
         if (!SessionIdRoomId.TryGetValue(sesssionId, out int roomId))
         {

@@ -72,7 +72,7 @@ public partial class PacketProcessor
     public void SendPacket(string sessionId, Packet packet)
     {
         var body = MessagePackSerializer.Serialize(packet);
-        var totalSize = (Int16)(body.Length + DIContainer.Get<ServerOption>().HeaderSize);
+        var totalSize = (Int16)(body.Length + ServerOption.HeaderSize);
 
         List<byte> dataSource = new List<byte>();
         dataSource.AddRange(BitConverter.GetBytes(totalSize));

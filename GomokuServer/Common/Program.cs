@@ -10,14 +10,6 @@ class Program
     {
         Console.WriteLine("Hello SuperSocketLite");
 
-        var services = new ServiceCollection();
-        services.AddSingleton<GameOption>();
-        services.AddSingleton<ServerOption>();
-        services.AddSingleton<UserManager>();
-        services.AddSingleton<RoomManager>();
-        var provider = services.BuildServiceProvider();
-        DIContainer.Init(provider);
-
         // 서버 생성, 설정
         var server = BootMainServer();
 
@@ -44,7 +36,7 @@ class Program
         {
             Port = 32452,
             Ip = "Any",
-            MaxConnectionNumber = DIContainer.Get<GameOption>().MaxUserCountPerServer,
+            MaxConnectionNumber = GameOption.MaxUserCountPerServer,
             Mode = SocketMode.Tcp,
             Name = "Gomoku Server"
         };
