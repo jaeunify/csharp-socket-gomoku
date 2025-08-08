@@ -47,10 +47,6 @@ public partial class PacketProcessor
                 var packet = MessagePackSerializer.Deserialize<Packet>(serializedPacket.Body);
                 handle(senderSessionId, packet);
             }
-            catch (ServerException ex)
-            {
-                SendPacket(senderSessionId, new ErrorPacket() { ErrorCode = ex.ErrorCode });
-            }
             catch (Exception ex)
             {
                 if (IsThreadRunning)
