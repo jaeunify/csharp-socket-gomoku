@@ -35,7 +35,9 @@ public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
     protected override int GetBodyLengthFromHeader(byte[] header, int offset, int length)
     {
         if (!BitConverter.IsLittleEndian)
+        {
             Array.Reverse(header, offset, 2);
+        }
 
         var packetTotalSize = BitConverter.ToUInt16(header, offset);
         return packetTotalSize - DIContainer.Get<ServerOption>().HeaderSize;
@@ -44,7 +46,9 @@ public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
     protected override PktBinaryRequestInfo ResolveRequestInfo(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length)
     {
         if (!BitConverter.IsLittleEndian)
+        {
             Array.Reverse(header.Array, 0, DIContainer.Get<ServerOption>().HeaderSize);
+        }
 
         return new PktBinaryRequestInfo(BitConverter.ToUInt16(header.Array, 0),
                                        BitConverter.ToUInt16(header.Array, 0 + 2),

@@ -12,7 +12,9 @@ public class LogState : ReduxState
         Logs.Add($"[{DateTime.Now:T}] {message}");
 
         if (Logs.Count > 100)
+        {
             Logs.RemoveAt(0);
+        }
 
         OnChange?.Invoke();
     }

@@ -40,7 +40,9 @@ public partial class PacketProcessor
             try
             {
                 if (PacketHandlerMap.TryGetValue(serializedPacket.PacketID, out var handle) == false)
+                {
                     continue;
+                }
 
                 var packet = MessagePackSerializer.Deserialize<Packet>(serializedPacket.Body);
                 handle(senderSessionId, packet);

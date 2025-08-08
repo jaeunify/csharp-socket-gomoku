@@ -10,4 +10,4 @@ public class ServerException : Exception
     {
         ErrorCode = errorCode;
     }
- }
+}

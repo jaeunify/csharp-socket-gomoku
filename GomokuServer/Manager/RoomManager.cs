@@ -39,25 +39,35 @@ public class RoomManager
     public void Leave(User user) // todo use
     {
         if (!SessionIdRoomId.TryGetValue(user.SessionId, out int roomId))
+        {
             throw new ServerException(ERROR_CODE.UNENTERED_USER);
+        }
 
         if (!Rooms.TryGetValue(roomId, out var room))
+        {
             throw new Exception("impossible fatal error: room not found");
+        }
 
         SessionIdRoomId.Remove(user.SessionId); // dic 부터 저장해야, 멀티스레드 환경에서 안전하게 동작함
 
         room.Leave(user);
         if (room.GetUserCount() <= 0)
+        {
             Rooms.Remove(roomId);
+        }
     }
 
     public Room GetRoom(string sesssionId)
     {
         if (!SessionIdRoomId.TryGetValue(sesssionId, out int roomId))
+        {
             throw new ServerException(ERROR_CODE.UNENTERED_USER);
+        }
 
         if (!Rooms.TryGetValue(roomId, out var room))
+        {
             throw new Exception("impossible fatal error: room not found");
+        }
 
         return room;
     }

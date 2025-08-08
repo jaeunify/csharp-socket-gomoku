@@ -9,7 +9,7 @@ namespace GomokuClient
         public MainWindow()
         {
             InitializeComponent();
-            
+
             blazorView.Services = App.Current.Services;
             blazorView.RootComponents.Add(new RootComponent()
             {

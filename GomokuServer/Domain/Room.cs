@@ -88,18 +88,25 @@ public class Room
     public bool SetRock(string sessionId, int x, int y)
     {
         if (IsPlaying == false || Board == null)
+        {
             throw new ServerException(ERROR_CODE.GAME_UNSTARTED);
+        }
 
         if (!IsMyTurn(sessionId))
+        {
             throw new ServerException(ERROR_CODE.NOT_MY_TURN);
+        }
 
         if (x < 0 || y < 0 || x >= Board.Count || y >= Board[x].Count)
+        {
             throw new ServerException(ERROR_CODE.INVALID_ROCK_POSITION);
-
+        }
         var board = Board;
 
         if (Board[y][x] != -1)
+        {
             throw new ServerException(ERROR_CODE.ALREADY_SET_ROCK_POSITION);
+        }
 
         Board[y][x] = ConnectedUsers[sessionId].UserId;
 
@@ -112,8 +119,9 @@ public class Room
     public bool IsGameEnd()
     {
         if (Board == null)
+        {
             return false;
-
+        }
         int size = Board.Count;
 
         // 4가지 방향 (오른쪽, 아래, 오른쪽아래, 왼쪽아래)
@@ -130,7 +138,10 @@ public class Room
             for (int x = 0; x < size; x++)
             {
                 int stone = Board[y][x];
-                if (stone == -1) continue; // 빈 칸이면 무시
+                if (stone == -1)
+                {
+                    continue; // 빈 칸이면 무시
+                }
 
                 foreach (var dir in directions)
                 {
@@ -146,7 +157,9 @@ public class Room
                     {
                         count++;
                         if (count == 5)
+                        {
                             return true;
+                        }
 
                         nx += dx;
                         ny += dy;
