@@ -4,25 +4,25 @@ public class UserManager
 {
     private Dictionary<string, User> ConnectedUsers = new Dictionary<string, User>();
 
-    public User AddUser(string sessionId)
+    public (ERROR_CODE ErrorCode, User? User) AddUser(string sessionId)
     {
         if (IsUserCountFull())
-            throw new ServerException(ERROR_CODE.USER_COUNT_FULL);
+            return (ERROR_CODE.USER_COUNT_FULL, null);
 
         if (ConnectedUsers.ContainsKey(sessionId))
-            throw new ServerException(ERROR_CODE.USER_ALREADY_EXIST);
+            return (ERROR_CODE.USER_ALREADY_EXIST, null);
 
         var user = new User(sessionId);
         ConnectedUsers[sessionId] = user;
-        return user;
+        return (ERROR_CODE.NONE, user);
     }
 
-    public User GetUser(string sessionId) // todo 삭제 고려
+    public (ERROR_CODE ErrorCode, User? User) GetUser(string sessionId) // todo 삭제 고려
     {
         if (!ConnectedUsers.TryGetValue(sessionId, out var user))
-            throw new ServerException(ERROR_CODE.UNKNOWN_USER);
-        
-        return user;
+            return (ERROR_CODE.UNKNOWN_USER, null);
+
+        return (ERROR_CODE.NONE, user);
     }
 
     private bool IsUserCountFull()

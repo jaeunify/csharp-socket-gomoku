@@ -85,27 +85,27 @@ public class Room
     /// 수를 놓습니다.
     /// </summary>
     /// <returns>게임이 종료되었는지 리턴합니다.</returns>
-    public bool SetRock(string sessionId, int x, int y)
+    public ERROR_CODE SetRock(string sessionId, int x, int y)
     {
         if (IsPlaying == false || Board == null)
         {
-            throw new ServerException(ERROR_CODE.GAME_UNSTARTED);
+            return ERROR_CODE.GAME_UNSTARTED;
         }
 
         if (!IsMyTurn(sessionId))
         {
-            throw new ServerException(ERROR_CODE.NOT_MY_TURN);
+            return ERROR_CODE.NOT_MY_TURN;
         }
 
         if (x < 0 || y < 0 || x >= Board.Count || y >= Board[x].Count)
         {
-            throw new ServerException(ERROR_CODE.INVALID_ROCK_POSITION);
+            return ERROR_CODE.INVALID_ROCK_POSITION;
         }
         var board = Board;
 
         if (Board[y][x] != -1)
         {
-            throw new ServerException(ERROR_CODE.ALREADY_SET_ROCK_POSITION);
+            return ERROR_CODE.ALREADY_SET_ROCK_POSITION;
         }
 
         Board[y][x] = ConnectedUsers[sessionId].UserId;
@@ -113,7 +113,7 @@ public class Room
         // 다음 턴을 상대 유저로 변경합니다.
         turnSessionId = GetOtherUser(sessionId).SessionId;
 
-        return IsGameEnd();
+        return ERROR_CODE.NONE;
     }
 
     public bool IsGameEnd()

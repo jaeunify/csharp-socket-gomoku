@@ -7,7 +7,14 @@ public partial class PacketProcessor
         var packet = (EnterPacket)_packet;
 
         var sessionID = SenderSessionId;
-        var user = DIContainer.Get<UserManager>().AddUser(sessionID);
+
+        var (errorCode, user) = DIContainer.Get<UserManager>().AddUser(sessionID);
+        if (errorCode != ERROR_CODE.NONE || user is null)
+        {
+            SendPacket(sessionID, new ErrorPacket() { ErrorCode = errorCode });
+            return;
+        }
+
         var room = DIContainer.Get<RoomManager>().Enter(user);
 
         // 방이 다 찼으면, 게임을 시작합니다.

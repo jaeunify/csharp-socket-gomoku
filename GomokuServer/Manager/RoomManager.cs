@@ -36,11 +36,11 @@ public class RoomManager
         }
     }
 
-    public void Leave(User user) // todo use
+    public ERROR_CODE Leave(User user) // todo use
     {
         if (!SessionIdRoomId.TryGetValue(user.SessionId, out int roomId))
         {
-            throw new ServerException(ERROR_CODE.UNENTERED_USER);
+            return ERROR_CODE.UNENTERED_USER;
         }
 
         if (!Rooms.TryGetValue(roomId, out var room))
@@ -55,13 +55,15 @@ public class RoomManager
         {
             Rooms.Remove(roomId);
         }
+
+        return ERROR_CODE.NONE;
     }
 
-    public Room GetRoom(string sesssionId)
+    public (ERROR_CODE errorCode, Room? room) GetRoom(string sesssionId)
     {
         if (!SessionIdRoomId.TryGetValue(sesssionId, out int roomId))
         {
-            throw new ServerException(ERROR_CODE.UNENTERED_USER);
+            return (ERROR_CODE.UNENTERED_USER, null);
         }
 
         if (!Rooms.TryGetValue(roomId, out var room))
@@ -69,6 +71,6 @@ public class RoomManager
             throw new Exception("impossible fatal error: room not found");
         }
 
-        return room;
+        return (ERROR_CODE.NONE, room);
     }
 }
