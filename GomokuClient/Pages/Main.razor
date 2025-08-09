@@ -4,6 +4,7 @@
 @using Radzen.Blazor
 @using GomokuPacket
 @using System.Text.Json
+@using GomokuClient.Components
 
 @inject IJSRuntime Js
 @inject LogState LogState
@@ -12,43 +13,55 @@
 <div style="padding: 20px;">
     <h3 class="mt-4 mb-2">TCP Gomoku Client</h3>
 
-    <RadzenFieldset Text="Connection">
-        <RadzenRow>
-            @StatusMessage
-        </RadzenRow>
-        <RadzenRow>
-            <RadzenTextBox @bind-Value="IpAddress" Name="IP" Style="width: 200px;" Placeholder="IP Address" />
-            <RadzenNumeric @bind-Value="Port" Name="Port" Style="width: 100px;" />
-            @if (IsConnected)
-            {
-                <RadzenButton Text="Disconnect" Click="Disconnect" Icon="link_off" ButtonStyle="ButtonStyle.Danger" />
-            }
-            else
-            {
-                <RadzenButton Text="Connect" Click="Connect" Icon="link" Style="margin-right: 5px;" />
-            }
-        </RadzenRow>
-    </RadzenFieldset>
+    <RadzenCardGroup>
+        <RadzenCard>
 
-    <RadzenFieldset Text="Message">
-        <div style="display: flex; gap: 10px;">
-            <RadzenDropDown TValue=PacketId Value=@PacketId Data=@packetIds
-                Change="@(args => ChangePacketId((PacketId)args))" Style="width: 150px; max-width: 400px;"
-                Name="DropDownChangeEvent" />
-            <RadzenTextBox @bind-Value=@Input Name="Message" Style="flex-grow: 1;"
-                Placeholder="Enter message to send" />
-            <RadzenButton Text="Send" Click="Send" Icon="send" ButtonStyle="ButtonStyle.Primary"
-                Style="width: 100px;" />
-        </div>
+            <RadzenFieldset Text="Connection">
+                <RadzenRow>
+                    @StatusMessage
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenTextBox @bind-Value="IpAddress" Name="IP" Style="width: 200px;" Placeholder="IP Address"/>
+                    <RadzenNumeric @bind-Value="Port" Name="Port" Style="width: 100px;"/>
+                    @if (IsConnected)
+                    {
+                        <RadzenButton Text="Disconnect" Click="Disconnect" Icon="link_off"
+                                      ButtonStyle="ButtonStyle.Danger"/>
+                    }
+                    else
+                    {
+                        <RadzenButton Text="Connect" Click="Connect" Icon="link" Style="margin-right: 5px;"/>
+                    }
+                </RadzenRow>
+            </RadzenFieldset>
 
-        <div
-            style="white-space: pre-line; font-family: monospace; max-height: 300px; overflow-y: auto; margin-top: 10px;">
-            @((MarkupString)string.Join("\n", LogState.GetReversedLogs()))
-        </div>
-    </RadzenFieldset>
+            <RadzenFieldset Text="Message">
+                <div style="display: flex; gap: 10px;">
+                    <RadzenDropDown TValue=PacketId Value=@PacketId Data=@packetIds
+                                    Change="@(args => ChangePacketId((PacketId)args))"
+                                    Style="width: 150px; max-width: 400px;"
+                                    Name="DropDownChangeEvent"/>
+                    <RadzenTextBox @bind-Value=@Input Name="Message" Style="flex-grow: 1;"
+                                   Placeholder="Enter message to send"/>
+                    <RadzenButton Text="Send" Click="Send" Icon="send" ButtonStyle="ButtonStyle.Primary"
+                                  Style="width: 100px;"/>
+                </div>
+
+                <div
+                    style="white-space: pre-line; font-family: monospace; max-height: 300px; overflow-y: auto; margin-top: 10px;">
+                    @((MarkupString)string.Join("\n", LogState.GetReversedLogs()))
+                </div>
+            </RadzenFieldset>
+        </RadzenCard>
+
+        <RadzenCard>
+            <GomokuComponent/>
+        </RadzenCard>
+    </RadzenCardGroup>
 </div>
 
 @code {
+
     // todo variable 정리
     Dictionary<PacketId, (Type packetType, string DefaultInput)> SendAblePackets = new();
     string IpAddress = "127.0.0.1";
@@ -64,18 +77,15 @@
     {
         // 서버에서 받은 패킷으로 로그가 변경되면 ui 갱신
         LogState.OnChange += HandleLogChange;
-        
+
         // 서버에서 에러 메시지를 받으면 alert로 표시
-        ServerClient.OnErrorMessage = async (msg) =>
-        {
-            await InvokeAsync(() => Js.InvokeVoidAsync("alert", msg));
-        };
+        ServerClient.OnErrorMessage = async (msg) => { await InvokeAsync(() => Js.InvokeVoidAsync("alert", msg)); };
 
         // 패킷ID - 패킷 타입, 기본 입력값 매핑
         SendAblePackets = new Dictionary<PacketId, (Type packetType, string DefaultInput)>
         {
             { PacketId.Enter, (typeof(EnterPacket), JsonSerializer.Serialize(new EnterPacket())) },
-            { PacketId.SetRock, (typeof(SetRockPacket), JsonSerializer.Serialize(new SetRockPacket(){X = 0, Y = 0})) },
+            { PacketId.SetRock, (typeof(SetRockPacket), JsonSerializer.Serialize(new SetRockPacket() { X = 0, Y = 0 })) },
         };
 
         // 전송 가능한 패킷 ID 목록
@@ -156,4 +166,5 @@
         PacketId = packetId;
         Input = SendAblePackets[packetId].DefaultInput;
     }
+
 }

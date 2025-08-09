@@ -1,0 +1,75 @@
+@using Radzen
+@using Radzen.Blazor
+
+<style>
+    .board {
+        min-width: 480px;
+    }
+
+    .cell {
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        display: inline-flex; /* ← inline-flex 로 <br> 작동하게 */
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        line-height: 1;
+    }
+</style>
+
+
+<div class="board">
+    @for (var y = 0; y < GameOption.BoardSize; y++)
+    {
+        @for (var x = 0; x < GameOption.BoardSize; x++)
+        {
+            var ix = x;
+            var iy = y; // <= 복사본
+
+            <RadzenButton class="cell"
+                          Size="ButtonSize.Small"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="@(() => SetRock(ix, iy))">
+                @CellText(Board[ix, iy])
+            </RadzenButton>
+        }
+
+        <br>
+    }
+</div>
+
+@code {
+
+    public enum Rock
+    {
+        Empty,
+        White,
+        Black
+    }
+
+    private Rock[,] Board = default!;
+    private Rock turn = Rock.Black; // 흑 선
+
+    protected override void OnInitialized()
+    {
+        Board = new Rock[GameOption.BoardSize, GameOption.BoardSize];
+    }
+
+    string CellText(Rock r) => r switch
+    {
+        Rock.Empty => "+",
+        Rock.White => "○",
+        Rock.Black => "●",
+        _ => "+"
+    };
+
+    void SetRock(int x, int y)
+    {
+        if (Board[x, y] != Rock.Empty) return; // 이미 둔 자리면 무시
+        Board[x, y] = turn;
+        turn = (turn == Rock.Black) ? Rock.White : Rock.Black; // 턴 교대
+        StateHasChanged();
+    }
+
+}
