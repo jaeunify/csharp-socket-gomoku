@@ -1,5 +1,10 @@
+@using GomokuPacket
+@using Microsoft.JSInterop
 @using Radzen
 @using Radzen.Blazor
+@inject IJSRuntime Js
+@inject ServerClient ServerClient
+@inject GameState GameState
 
 <style>
     .board {
@@ -10,7 +15,8 @@
         width: 32px !important;
         height: 32px !important;
         padding: 0 !important;
-        display: inline-flex; /* ← inline-flex 로 <br> 작동하게 */
+        display: inline-flex;
+        /* ← inline-flex 로 <br> 작동하게 */
         justify-content: center;
         align-items: center;
         font-size: 18px;
@@ -27,10 +33,7 @@
             var ix = x;
             var iy = y; // <= 복사본
 
-            <RadzenButton class="cell"
-                          Size="ButtonSize.Small"
-                          ButtonStyle="ButtonStyle.Light"
-                          Click="@(() => SetRock(ix, iy))">
+            <RadzenButton class="cell" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => SetRock(ix, iy))">
                 @CellText(Board[ix, iy])
             </RadzenButton>
         }
@@ -40,20 +43,27 @@
 </div>
 
 @code {
-
-    public enum Rock
-    {
-        Empty,
-        White,
-        Black
-    }
-
-    private Rock[,] Board = default!;
-    private Rock turn = Rock.Black; // 흑 선
+    private Rock[,] Board;
 
     protected override void OnInitialized()
     {
-        Board = new Rock[GameOption.BoardSize, GameOption.BoardSize];
+        GameState.OnChange += HandleGameStateChange;
+        ServerClient.OnReceivePacket += HandleReceivePacket;
+        ServerClient.OnError += HandleError;
+
+        Board = GameState.Board;
+    }
+
+    public void Dispose()
+    {
+        GameState.OnChange -= HandleGameStateChange;
+        ServerClient.OnReceivePacket -= HandleReceivePacket;
+        ServerClient.OnError -= HandleError;
+    }
+
+    private void HandleGameStateChange()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     string CellText(Rock r) => r switch
@@ -64,12 +74,32 @@
         _ => "+"
     };
 
-    void SetRock(int x, int y)
+    async Task SetRock(int x, int y)
     {
-        if (Board[x, y] != Rock.Empty) return; // 이미 둔 자리면 무시
-        Board[x, y] = turn;
-        turn = (turn == Rock.Black) ? Rock.White : Rock.Black; // 턴 교대
-        StateHasChanged();
+        var (success, msg) = GameState.SetRock(true, x, y);
+        await Js.InvokeVoidAsync("alert", msg);
+
+        await ServerClient.SendAsync(new SetRockPacket() { X = x, Y = y });
     }
 
+    void HandleReceivePacket(Packet packet)
+    {
+        if (packet is GameStartPacket gameStartPacket)
+        {
+            GameState.SetMyRock(gameStartPacket.AmIFirst);
+        }
+        else if (packet is SetRockPacket setRockPacket)
+        {
+            var (success, msg) = GameState.SetRock(false, setRockPacket.X, setRockPacket.Y);
+            if (success == false)
+            {
+                throw new Exception(msg);
+            }
+        }
+    }
+
+    void HandleError()
+    {
+        GameState.HandleError();
+    }
 }

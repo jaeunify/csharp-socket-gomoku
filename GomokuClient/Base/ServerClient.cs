@@ -17,6 +17,8 @@ public class ServerClient : Instance
     private NetworkStream stream;
     private Thread receiveThread;
     private bool isRunning = false;
+    public event Action<Packet>? OnReceivePacket;
+    public event Action? OnError;
 
     public ConcurrentQueue<(short PacketId, byte[] Body)> RecvPacketQueue = new();
 
@@ -118,10 +120,13 @@ public class ServerClient : Instance
                 var packet = MessagePackSerializer.Deserialize<Packet>(body);
                 var runtimeType = packet.GetType();
                 var json = JsonSerializer.Serialize(Convert.ChangeType(packet, runtimeType));
+                OnReceivePacket?.Invoke(packet);
                 LogStore?.AddLog($"[응답] {json}");
             }
             else if (packetId == (short)PacketId.Error)
             {
+                OnError?.Invoke();
+
                 var packet = MessagePackSerializer.Deserialize<Packet>(body);
                 var errorPacket = (ErrorPacket)packet;
                 var errorMessage = errorPacket.ErrorCode switch
@@ -139,7 +144,7 @@ public class ServerClient : Instance
                 OnErrorMessage?.Invoke(errorMessage);
             }
             else
-            { 
+            {
                 LogStore?.AddLog($"[응답] PacketID: {packetId}, Message: {body}");
             }
 

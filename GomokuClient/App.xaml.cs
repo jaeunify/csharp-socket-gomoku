@@ -20,6 +20,7 @@ namespace GomokuClient
             // DI
             services.AddSingleton<ServerClient>();
             services.AddSingleton<LogState>();
+            services.AddSingleton<GameState>();
 
             Services = services.BuildServiceProvider();
             base.OnStartup(e);
