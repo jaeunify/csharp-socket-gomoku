@@ -39,12 +39,13 @@ public partial class PacketProcessor
 
             try
             {
-                if (PacketHandlerMap.TryGetValue(serializedPacket.PacketID, out var handle) == false)
+                var packet = MessagePackSerializer.Deserialize<Packet>(serializedPacket.Body);
+                if (PacketHandlerMap.TryGetValue(packet.PacketId, out var handle) == false)
                 {
                     continue;
                 }
 
-                var packet = MessagePackSerializer.Deserialize<Packet>(serializedPacket.Body);
+
                 handle(senderSessionId, packet);
             }
             catch (Exception ex)
@@ -76,7 +77,6 @@ public partial class PacketProcessor
 
         List<byte> dataSource = new List<byte>();
         dataSource.AddRange(BitConverter.GetBytes(totalSize));
-        dataSource.AddRange(BitConverter.GetBytes((Int16)packet.PacketId));
         dataSource.AddRange(body);
 
         SendBinaryAction(sessionId, dataSource.ToArray());

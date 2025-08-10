@@ -7,7 +7,7 @@ using System.Text.Json;
 
 public class ServerClient : Instance
 {
-    const int HEADER_SIZE = 4;
+    const int HEADER_SIZE = 2;
 
     public string Ip { get; set; }
     public int Port { get; set; }
@@ -19,8 +19,6 @@ public class ServerClient : Instance
     private bool isRunning = false;
     public event Action<Packet>? OnReceivePacket;
     public event Action? OnError;
-
-    public ConcurrentQueue<(short PacketId, byte[] Body)> RecvPacketQueue = new();
 
     public ServerClient(LogState logstore)
     {
@@ -63,7 +61,6 @@ public class ServerClient : Instance
 
         var bytes = new List<byte>();
         bytes.AddRange(BitConverter.GetBytes(totalSize));
-        bytes.AddRange(BitConverter.GetBytes((short)packet.PacketId));
         bytes.AddRange(body);
 
         await stream.WriteAsync(bytes.ToArray(), 0, bytes.Count);
@@ -106,7 +103,6 @@ public class ServerClient : Instance
         while (length - offset >= HEADER_SIZE)
         {
             short totalSize = BitConverter.ToInt16(data, offset);
-            short packetId = BitConverter.ToInt16(data, offset + 2);
 
             if (length - offset < totalSize)
                 break; // 데이터 부족
@@ -114,20 +110,19 @@ public class ServerClient : Instance
             byte[] body = new byte[totalSize - HEADER_SIZE];
             Buffer.BlockCopy(data, offset + HEADER_SIZE, body, 0, body.Length);
 
+            var packet = MessagePackSerializer.Deserialize<Packet>(body);
 
-            if (packetId > 0)
+            if (packet.PacketId > 0)
             {
-                var packet = MessagePackSerializer.Deserialize<Packet>(body);
                 var runtimeType = packet.GetType();
                 var json = JsonSerializer.Serialize(Convert.ChangeType(packet, runtimeType));
                 OnReceivePacket?.Invoke(packet);
                 LogStore?.AddLog($"[응답] {json}");
             }
-            else if (packetId == (short)PacketId.Error)
+            else if (packet.PacketId == PacketId.Error)
             {
                 OnError?.Invoke();
 
-                var packet = MessagePackSerializer.Deserialize<Packet>(body);
                 var errorPacket = (ErrorPacket)packet;
                 var errorMessage = errorPacket.ErrorCode switch
                 {
@@ -143,12 +138,7 @@ public class ServerClient : Instance
                 };
                 OnErrorMessage?.Invoke(errorMessage);
             }
-            else
-            {
-                LogStore?.AddLog($"[응답] PacketID: {packetId}, Message: {body}");
-            }
 
-            RecvPacketQueue.Enqueue((packetId, body));
             offset += totalSize;
         }
     }

@@ -25,9 +25,7 @@ public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
             Array.Reverse(header.Array, 0, ServerOption.HeaderSize);
         }
 
-        return new PktBinaryRequestInfo(BitConverter.ToUInt16(header.Array, 0),
-                                       BitConverter.ToUInt16(header.Array, 0 + 2),
-                                       bodyBuffer.CloneRange(offset, length));
+        return new PktBinaryRequestInfo(BitConverter.ToUInt16(header.Array, 0), bodyBuffer.CloneRange(offset, length));
     }
 }
 
