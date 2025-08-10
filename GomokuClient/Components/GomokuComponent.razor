@@ -34,7 +34,7 @@
             var iy = y; // <= 복사본
 
             <RadzenButton class="cell" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Click="@(() => SetRock(ix, iy))">
-                @CellText(Board[ix, iy])
+                @CellText(Board[iy, ix])
             </RadzenButton>
         }
 
@@ -77,7 +77,11 @@
     async Task SetRock(int x, int y)
     {
         var (success, msg) = GameState.SetRock(true, x, y);
-        await Js.InvokeVoidAsync("alert", msg);
+        if (!success)
+        {
+            await Js.InvokeVoidAsync("alert", msg);
+            return;
+        }
 
         await ServerClient.SendAsync(new SetRockPacket() { X = x, Y = y });
     }
@@ -94,6 +98,18 @@
             if (success == false)
             {
                 throw new Exception(msg);
+            }
+        }
+        else if (packet is GameEndPacket gameEndPacket)
+        {
+            if (gameEndPacket.AmIWin)
+            {
+                _ = Js.InvokeVoidAsync("alert", "승리!");
+            }
+            else
+            {
+
+                _ = Js.InvokeVoidAsync("alert", "패배..");
             }
         }
     }
