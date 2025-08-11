@@ -55,17 +55,11 @@ public class PacketRouter
             {
                 var packet = MessagePackSerializer.Deserialize<Packet>(serializedPacket.Body);
 
-                if (packet is EnterPacket enterPacket)
+                switch (packet)
                 {
-                    new EnterPacketHandler(SendPacket).Handle(senderSessionId, enterPacket);
-                }
-                else if (packet is SetRockPacket setRockPacket)
-                {
-                    new SetRockHandler(SendPacket).Handle(senderSessionId, setRockPacket);
-                }
-                else
-                {
-                    throw new NotSupportedException($"Unsupported packet type: {packet.GetType()}");
+                    case EnterPacket enterPacket: new EnterPacketHandler(SendPacket).Handle(senderSessionId, enterPacket); break;
+                    case SetRockPacket setRockPacket: new SetRockHandler(SendPacket).Handle(senderSessionId, setRockPacket); break;
+                    default: throw new NotSupportedException($"Unsupported packet type: {packet.GetType().Name}");
                 }
             }
             catch (Exception ex)
