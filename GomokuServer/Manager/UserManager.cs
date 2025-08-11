@@ -1,7 +1,7 @@
-using Gomoku.Entity;
+using GomokuServer.Entity;
 using GomokuPacket;
 
-namespace Gomoku.Manager;
+namespace GomokuServer.Manager;
 
 public static class UserManager
 {

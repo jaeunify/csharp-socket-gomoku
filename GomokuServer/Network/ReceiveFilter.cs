@@ -1,7 +1,7 @@
 using SuperSocketLite.Common;
 using SuperSocketLite.SocketEngine.Protocol;
 
-namespace Gomoku.Network;
+namespace GomokuServer.Network;
 
 public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
 {

@@ -1,9 +1,9 @@
 using System.Threading.Tasks.Dataflow;
-using Gomoku.Network.Handler;
+using GomokuServer.Network.Handler;
 using GomokuPacket;
 using MessagePack;
 
-namespace Gomoku.Network;
+namespace GomokuServer.Network;
 
 public class PacketRouter
 {

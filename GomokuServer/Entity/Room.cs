@@ -1,6 +1,6 @@
 using GomokuPacket;
 
-namespace Gomoku.Entity;
+namespace GomokuServer.Entity;
 
 public class Room
 {

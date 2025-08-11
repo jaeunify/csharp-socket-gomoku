@@ -1,7 +1,7 @@
-using Gomoku.Manager;
+using GomokuServer.Manager;
 using GomokuPacket;
 
-namespace Gomoku.Network.Handler;
+namespace GomokuServer.Network.Handler;
 
 public class SetRockHandler : PacketHandler<SetRockPacket>
 {
