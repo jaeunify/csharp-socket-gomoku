@@ -1,6 +1,9 @@
+using Gomoku.Manager;
 using GomokuPacket;
 
-public class SetRockHandler : PacketHandler<SetRockPacket> 
+namespace Gomoku.Network.Handler;
+
+public class SetRockHandler : PacketHandler<SetRockPacket>
 {
     public SetRockHandler(Action<string, Packet> sendPacket) : base(sendPacket) { }
 

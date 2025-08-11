@@ -1,4 +1,7 @@
+using Gomoku.Entity;
 using GomokuPacket;
+
+namespace Gomoku.Manager;
 
 public static class RoomManager
 {

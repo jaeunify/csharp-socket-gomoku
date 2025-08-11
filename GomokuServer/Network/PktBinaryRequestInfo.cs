@@ -1,6 +1,8 @@
 using GomokuPacket;
 using SuperSocketLite.SocketBase.Protocol;
 
+namespace Gomoku.Network;
+
 public class PktBinaryRequestInfo : BinaryRequestInfo
 {
     // in header

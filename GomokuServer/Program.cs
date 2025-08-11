@@ -1,6 +1,6 @@
 ﻿// EchoServer.csproj 에서 default namespace 를 EchoServer 로 설정했습니다. -> namespace 생략
 
-using Microsoft.Extensions.DependencyInjection;
+using Gomoku.Network;
 using SuperSocketLite.SocketBase;
 using SuperSocketLite.SocketBase.Config;
 

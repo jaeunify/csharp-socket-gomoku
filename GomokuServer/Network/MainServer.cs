@@ -1,6 +1,8 @@
 using SuperSocketLite.SocketBase;
 using SuperSocketLite.SocketBase.Protocol;
 
+namespace Gomoku.Network;
+
 class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
 {
     public MainServer() : base(new DefaultReceiveFilterFactory<ReceiveFilter, PktBinaryRequestInfo>()) { }

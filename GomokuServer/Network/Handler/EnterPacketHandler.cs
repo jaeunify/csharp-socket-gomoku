@@ -1,4 +1,7 @@
+using Gomoku.Manager;
 using GomokuPacket;
+
+namespace Gomoku.Network.Handler;
 
 public class EnterPacketHandler : PacketHandler<EnterPacket>
 {

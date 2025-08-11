@@ -1,3 +1,4 @@
+namespace Gomoku.Entity;
 
 public class User
 {
