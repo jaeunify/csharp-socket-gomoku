@@ -11,7 +11,7 @@ public class ServerClient : Instance
 
     public string Ip { get; set; }
     public int Port { get; set; }
-    public LogState LogStore { get; set; }
+    public LogState LogState { get; set; }
     public Action<string>? OnErrorMessage;
     private TcpClient client;
     private NetworkStream stream;
@@ -22,7 +22,7 @@ public class ServerClient : Instance
 
     public ServerClient(LogState logstore)
     {
-        this.LogStore = logstore;
+        this.LogState = logstore;
     }
 
     public void Configure(string address, int port)
@@ -64,6 +64,8 @@ public class ServerClient : Instance
         bytes.AddRange(body);
 
         await stream.WriteAsync(bytes.ToArray(), 0, bytes.Count);
+
+        LogState.AddLog($"[전송] {packet.PacketId} {JsonSerializer.Serialize(packet)}");
         return bytes.Count;
     }
 
@@ -117,7 +119,7 @@ public class ServerClient : Instance
                 var runtimeType = packet.GetType();
                 var json = JsonSerializer.Serialize(Convert.ChangeType(packet, runtimeType));
                 OnReceivePacket?.Invoke(packet);
-                LogStore?.AddLog($"[응답] {json}");
+                LogState?.AddLog($"[응답] {packet.PacketId} {json}");
             }
             else if (packet.PacketId == PacketId.Error)
             {

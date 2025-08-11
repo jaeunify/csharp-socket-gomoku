@@ -148,7 +148,6 @@
             var packetType = SendAblePackets[PacketId].packetType;
             var packet = (Packet)JsonSerializer.Deserialize(Input, packetType);
             await ServerClient.SendAsync(packet);
-            LogState.AddLog($"[전송] {PacketId} {Input}");
         }
         catch (JsonException)
         {
