@@ -1,6 +1,6 @@
 ﻿// EchoServer.csproj 에서 default namespace 를 EchoServer 로 설정했습니다. -> namespace 생략
 
-using Gomoku.Network;
+using GomokuServer.Network;
 using SuperSocketLite.SocketBase;
 using SuperSocketLite.SocketBase.Config;
 
@@ -14,7 +14,7 @@ class Program
         var server = BootMainServer();
 
         // 패킷 프로세서 생성 및 대기
-        var packetRouter = new PacketRouter(server.Send);
+        var packetRouter = new PacketRouter(server.SendToSession);
         packetRouter.CreateAndStart();
 
         var eventHandler = new SessionEventHandler(server.Logger, packetRouter);
@@ -55,12 +55,12 @@ class Program
 
     public static void StartServer(MainServer server, SessionEventHandler eventHandler)
     {
+        // 세션 이벤트 핸들러 등록
         server.NewSessionConnected += new SessionHandler<NetworkSession>(eventHandler.OnConnected);
         server.SessionClosed += new SessionHandler<NetworkSession, CloseReason>(eventHandler.OnClosed);
         server.NewRequestReceived += new RequestHandler<NetworkSession, PktBinaryRequestInfo>(eventHandler.RequestReceived);
 
         var IsServerStartSuccess = server.Start();
-
         if (!IsServerStartSuccess) // server가 이미 Start 된 상태일 경우
         {
             throw new Exception("서버 네트워크 시작 실패");

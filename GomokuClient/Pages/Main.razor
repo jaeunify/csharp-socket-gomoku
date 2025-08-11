@@ -14,14 +14,14 @@
     <h3 class="mt-4 mb-2">TCP Gomoku Client</h3>
 
     <RadzenCardGroup>
-        <RadzenCard>
+        <RadzenCard Style="min-width: 530px">
 
             <RadzenFieldset Text="Connection">
                 <RadzenRow>
-                    @StatusMessage
+                    STATE: @StatusMessage
                 </RadzenRow>
                 <RadzenRow>
-                    <RadzenTextBox @bind-Value="IpAddress" Name="IP" Style="width: 200px;" Placeholder="IP Address" />
+                    <RadzenTextBox @bind-Value="IpAddress" Name="IP" Style="width: 180px; min-width: 150px" Placeholder="IP Address" />
                     <RadzenNumeric @bind-Value="Port" Name="Port" Style="width: 100px;" />
                     @if (IsConnected)
                     {
@@ -38,7 +38,7 @@
             <RadzenFieldset Text="Message">
                 <div style="display: flex; gap: 10px;">
                     <RadzenDropDown TValue=PacketId Value=@PacketId Data=@packetIds
-                        Change="@(args => ChangePacketId((PacketId)args))" Style="width: 150px; max-width: 400px;"
+                        Change="@(args => ChangePacketId((PacketId)args))" Style="width: 150px; min-width: 100px;"
                         Name="DropDownChangeEvent" />
                     <RadzenTextBox @bind-Value=@Input Name="Message" Style="flex-grow: 1;"
                         Placeholder="Enter message to send" />

@@ -1,7 +1,7 @@
-using Gomoku.Manager;
+using GomokuServer.Manager;
 using GomokuPacket;
 
-namespace Gomoku.Network.Handler;
+namespace GomokuServer.Network.Handler;
 
 public class SetRockHandler : PacketHandler<SetRockPacket>
 {
@@ -9,22 +9,29 @@ public class SetRockHandler : PacketHandler<SetRockPacket>
 
     public override void Handle(string SenderSessionId, SetRockPacket packet)
     {
-        var (roomGetResut, room) = RoomManager.GetRoom(SenderSessionId);
-        if (roomGetResut != ERROR_CODE.NONE || room is null)
+        var (errorCode, user) = UserManager.GetUser(SenderSessionId);
+        if (errorCode != ERROR_CODE.NONE || user is null)
         {
-            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = roomGetResut });
+            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
         }
 
-        var setRockResult = room.SetRock(SenderSessionId, packet.X, packet.Y);
-        if (setRockResult != ERROR_CODE.NONE)
+        (errorCode, var room) = RoomManager.GetRoom(user);
+        if (errorCode != ERROR_CODE.NONE || room is null)
         {
-            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = setRockResult });
+            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
+            return;
+        }
+
+        errorCode = room.SetRock(user, packet.X, packet.Y);
+        if (errorCode != ERROR_CODE.NONE)
+        {
+            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
         }
 
         // 상대 유저에게 수를 놓았음을 알립니다.
-        var otherUser = room.GetOtherUser(SenderSessionId);
+        var otherUser = room.GetOtherUser(user);
         SendPacket(otherUser.SessionId, packet);
 
         // 게임이 종료되었으면 모든 유저에게 게임 종료 패킷을 보냅니다.

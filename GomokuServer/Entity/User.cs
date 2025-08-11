@@ -1,4 +1,4 @@
-namespace Gomoku.Entity;
+namespace GomokuServer.Entity;
 
 public class User
 {
@@ -8,6 +8,7 @@ public class User
 
     public User(string sessionId)
     {
+        // 생성된 순서대로 UserId를 부여합니다.
         UserId = UserIdCounter++;
         SessionId = sessionId;
     }

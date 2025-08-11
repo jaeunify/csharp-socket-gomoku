@@ -1,13 +1,13 @@
 using SuperSocketLite.SocketBase;
 using SuperSocketLite.SocketBase.Protocol;
 
-namespace Gomoku.Network;
+namespace GomokuServer.Network;
 
 class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
 {
     public MainServer() : base(new DefaultReceiveFilterFactory<ReceiveFilter, PktBinaryRequestInfo>()) { }
 
-    public void Send(string sessionId, byte[] data)
+    public void SendToSession(string sessionId, byte[] data)
     {
         var session = GetSessionByID(sessionId);
 
@@ -27,6 +27,5 @@ class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
         }
     }
 }
-
 
 public class NetworkSession : AppSession<NetworkSession, PktBinaryRequestInfo> { }
