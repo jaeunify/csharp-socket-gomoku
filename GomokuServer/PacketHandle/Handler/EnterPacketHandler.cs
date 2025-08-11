@@ -1,11 +1,10 @@
 using GomokuPacket;
 
-public partial class PacketProcessor
+public class EnterPacketHandler : PacketHandler<EnterPacket>
 {
-    public void EnterProcess(string SenderSessionId, Packet _packet)
+    public EnterPacketHandler(Action<string, Packet> sendPacket) : base(sendPacket) { }
+    public override void Handle(string SenderSessionId, EnterPacket packet)
     {
-        var packet = (EnterPacket)_packet;
-
         var sessionID = SenderSessionId;
 
         var (errorCode, user) = UserManager.AddUser(sessionID);
@@ -27,6 +26,5 @@ public partial class PacketProcessor
             SendPacket(user.SessionId, new GameStartPacket() { AmIFirst = IsMyTurn });
             SendPacket(otherUser.SessionId, new GameStartPacket() { AmIFirst = !IsMyTurn });
         }
-
     }
 }

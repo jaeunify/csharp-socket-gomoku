@@ -14,10 +14,10 @@ class Program
         var server = BootMainServer();
 
         // 패킷 프로세서 생성 및 대기
-        var packetProcessor = new PacketProcessor(server.Send);
-        packetProcessor.CreateAndStart();
+        var packetRouter = new PacketRouter(server.Send);
+        packetRouter.CreateAndStart();
 
-        var eventHandler = new SessionEventHandler(server.Logger, packetProcessor);
+        var eventHandler = new SessionEventHandler(server.Logger, packetRouter);
 
         StartServer(server, eventHandler);
 
@@ -25,7 +25,7 @@ class Program
         Console.ReadKey();
 
         server.Stop();
-        packetProcessor.Destroy();
+        packetRouter.Destroy();
     }
 
     public static MainServer BootMainServer()

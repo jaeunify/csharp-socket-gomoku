@@ -2,7 +2,7 @@ using System.Threading.Tasks.Dataflow;
 using GomokuPacket;
 using MessagePack;
 
-public partial class PacketProcessor
+public partial class PacketRouter
 {
     bool IsThreadRunning = false;
 
@@ -11,26 +11,13 @@ public partial class PacketProcessor
     private BufferBlock<PktBinaryRequestInfo> MsgBuffer = new();
     private Action<string, byte[]> SendBinaryAction;
 
-    public PacketProcessor(Action<string, byte[]> sendBinaryFunction)
-    {
-        // MainServer의 바이너리 Send 함수 등록
-        SendBinaryAction = sendBinaryFunction;
-
-        // 패킷 핸들러 등록
-        PacketHandlerMap = new Dictionary<PacketId, Action<string, Packet>>
-        {
-            { PacketId.Enter, EnterProcess },
-            { PacketId.SetRock, SetRockProcess },
-        };
-    }
-
     public void CreateAndStart()
     {
         IsThreadRunning = true;
-        new Thread(this.Process).Start();
+        new Thread(this.Route).Start();
     }
 
-    private void Process()
+    private void Route()
     {
         while (IsThreadRunning)
         {
@@ -40,13 +27,19 @@ public partial class PacketProcessor
             try
             {
                 var packet = MessagePackSerializer.Deserialize<Packet>(serializedPacket.Body);
-                if (PacketHandlerMap.TryGetValue(packet.PacketId, out var handle) == false)
+
+                if (packet is EnterPacket enterPacket)
                 {
-                    continue;
+                    new EnterPacketHandler(SendPacket).Handle(senderSessionId, enterPacket);
                 }
-
-
-                handle(senderSessionId, packet);
+                else if (packet is SetRockPacket setRockPacket)
+                {
+                    new SetRockHandler(SendPacket).Handle(senderSessionId, setRockPacket);
+                }
+                else
+                {
+                    throw new NotSupportedException($"Unsupported packet type: {packet.GetType()}");
+                }
             }
             catch (Exception ex)
             {

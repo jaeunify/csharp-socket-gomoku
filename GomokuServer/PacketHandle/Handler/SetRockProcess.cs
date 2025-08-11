@@ -1,11 +1,11 @@
 using GomokuPacket;
 
-public partial class PacketProcessor
+public class SetRockHandler : PacketHandler<SetRockPacket> 
 {
-    public void SetRockProcess(string SenderSessionId, Packet _packet)
-    {
-        var packet = (SetRockPacket)_packet;
+    public SetRockHandler(Action<string, Packet> sendPacket) : base(sendPacket) { }
 
+    public override void Handle(string SenderSessionId, SetRockPacket packet)
+    {
         var (roomGetResut, room) = RoomManager.GetRoom(SenderSessionId);
         if (roomGetResut != ERROR_CODE.NONE || room is null)
         {
@@ -22,7 +22,7 @@ public partial class PacketProcessor
 
         // 상대 유저에게 수를 놓았음을 알립니다.
         var otherUser = room.GetOtherUser(SenderSessionId);
-        SendPacket(otherUser.SessionId, _packet);
+        SendPacket(otherUser.SessionId, packet);
 
         // 게임이 종료되었으면 모든 유저에게 게임 종료 패킷을 보냅니다.
         // 마지막으로 sender가 수를 놓았는데 게임이 종료되었으므로, sender가 이겼습니다.
