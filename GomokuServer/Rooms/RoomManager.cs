@@ -9,12 +9,11 @@ public class RoomManager : Manager
     private Dictionary<int, int> _userIdRoomId = new Dictionary<int, int>(); // userId-RoomId 매핑
     private Room? _pendingRoom = null;
 
-    public (ErrorCode errorCode, Room room) Enter(User user)
+    public Room GetRoom(User user)
     {
         if (_userIdRoomId.TryGetValue(user.UserId, out var roomId))
         {
-            // TODO 재접속
-            return (ErrorCode.NONE, _rooms[roomId]);
+            return _rooms[roomId];
         }
         else
         {
@@ -36,45 +35,7 @@ public class RoomManager : Manager
             _rooms[room.RoomId] = room;
             _userIdRoomId[user.UserId] = room.RoomId;
 
-            return (room.Enter(user), room);
+            return room;
         }
-    }
-
-    public ErrorCode Leave(User user) // todo use
-    {
-        if (!_userIdRoomId.TryGetValue(user.UserId, out int roomId))
-        {
-            return ErrorCode.UNENTERED_USER;
-        }
-
-        if (!_rooms.TryGetValue(roomId, out var room))
-        {
-            throw new Exception("impossible fatal error: room not found");
-        }
-
-        _userIdRoomId.Remove(user.UserId); // dic 부터 저장해야, 멀티스레드 환경에서 안전하게 동작함
-
-        room.Leave(user);
-        if (room.GetUserCount() <= 0)
-        {
-            _rooms.Remove(roomId);
-        }
-
-        return ErrorCode.NONE;
-    }
-
-    public (ErrorCode errorCode, Room? room) GetRoom(User user)
-    {
-        if (!_userIdRoomId.TryGetValue(user.UserId, out int roomId))
-        {
-            return (ErrorCode.UNENTERED_USER, null);
-        }
-
-        if (!_rooms.TryGetValue(roomId, out var room))
-        {
-            throw new Exception("impossible fatal error: room not found");
-        }
-
-        return (ErrorCode.NONE, room);
     }
 }

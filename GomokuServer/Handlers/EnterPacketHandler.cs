@@ -16,7 +16,8 @@ public class EnterPacketHandler : PacketHandler<EnterPacket>
             return;
         }
 
-        (errorCode, var room) = RoomManager.Enter(user);
+        var room = RoomManager.GetRoom(user);
+        errorCode = room.Enter(user);
         if (errorCode != ErrorCode.NONE || room is null)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });

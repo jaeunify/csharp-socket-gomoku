@@ -17,7 +17,7 @@ public class SetRockHandler : PacketHandler<SetRockPacket>
             return;
         }
 
-        (errorCode, var room) = RoomManager.GetRoom(user);
+        var room = RoomManager.GetRoom(user);
         if (errorCode != ErrorCode.NONE || room is null)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
