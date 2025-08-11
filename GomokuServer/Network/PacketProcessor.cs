@@ -1,13 +1,13 @@
 using System.Threading.Tasks.Dataflow;
-using GomokuServer.Handlers;
-using GomokuPacket;
 using MessagePack;
+using GomokuPacket;
+using GomokuServer.Handlers;
 using GomokuServer.Users;
 using GomokuServer.Rooms;
 
 namespace GomokuServer.Network;
 
-public class PacketRouter
+public class PacketProcessor
 {
     private bool _isThreadRunning = false;
     private BufferBlock<PktBinaryRequestInfo> _msgBuffer = new();
@@ -15,7 +15,7 @@ public class PacketRouter
     private UserManager _userManager = new();
     private RoomManager _roomManager = new();
 
-    public PacketRouter(Action<string, byte[]> sendBinaryAction)
+    public PacketProcessor(Action<string, byte[]> sendBinaryAction)
     {
         _sendBinary = sendBinaryAction;
     }
@@ -23,7 +23,7 @@ public class PacketRouter
     public void CreateAndStart()
     {
         _isThreadRunning = true;
-        new Thread(this.Route).Start();
+        new Thread(this.Process).Start();
     }
 
     public void Destroy()
@@ -48,7 +48,7 @@ public class PacketRouter
         _sendBinary(sessionId, dataSource.ToArray());
     }
 
-    private void Route()
+    private void Process()
     {
         while (_isThreadRunning)
         {
