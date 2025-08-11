@@ -6,7 +6,7 @@ namespace GomokuServer.Handlers;
 
 public class EnterPacketHandler : PacketHandler<EnterPacket>
 {
-    public EnterPacketHandler(Action<string, Packet> sendPacket) : base(sendPacket) { }
+    public EnterPacketHandler(Action<string, Packet> sendPacket, UserManager userManager, RoomManager roomManager) : base(sendPacket, userManager, roomManager) { }
     public override void Handle(string SenderSessionId, EnterPacket packet)
     {
         var (errorCode, user) = UserManager.AddUser(SenderSessionId);

@@ -3,13 +3,13 @@ using GomokuServer.Users;
 
 namespace GomokuServer.Rooms;
 
-public static class RoomManager
+public class RoomManager : Manager
 {
-    private static Dictionary<int, Room> _rooms = new Dictionary<int, Room>(); // roomId-Room 매핑
-    private static Dictionary<int, int> _userIdRoomId = new Dictionary<int, int>(); // userId-RoomId 매핑
-    private static Room? _pendingRoom = null;
+    private Dictionary<int, Room> _rooms = new Dictionary<int, Room>(); // roomId-Room 매핑
+    private Dictionary<int, int> _userIdRoomId = new Dictionary<int, int>(); // userId-RoomId 매핑
+    private Room? _pendingRoom = null;
 
-    public static (ErrorCode errorCode, Room room) Enter(User user)
+    public (ErrorCode errorCode, Room room) Enter(User user)
     {
         if (_userIdRoomId.TryGetValue(user.UserId, out var roomId))
         {
@@ -40,7 +40,7 @@ public static class RoomManager
         }
     }
 
-    public static ErrorCode Leave(User user) // todo use
+    public ErrorCode Leave(User user) // todo use
     {
         if (!_userIdRoomId.TryGetValue(user.UserId, out int roomId))
         {
@@ -63,7 +63,7 @@ public static class RoomManager
         return ErrorCode.NONE;
     }
 
-    public static (ErrorCode errorCode, Room? room) GetRoom(User user)
+    public (ErrorCode errorCode, Room? room) GetRoom(User user)
     {
         if (!_userIdRoomId.TryGetValue(user.UserId, out int roomId))
         {

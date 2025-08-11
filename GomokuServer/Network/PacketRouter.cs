@@ -2,6 +2,8 @@ using System.Threading.Tasks.Dataflow;
 using GomokuServer.Handlers;
 using GomokuPacket;
 using MessagePack;
+using GomokuServer.Users;
+using GomokuServer.Rooms;
 
 namespace GomokuServer.Network;
 
@@ -10,6 +12,8 @@ public class PacketRouter
     private bool _isThreadRunning = false;
     private BufferBlock<PktBinaryRequestInfo> _msgBuffer = new();
     private Action<string, byte[]> _sendBinary;
+    private UserManager _userManager = new();
+    private RoomManager _roomManager = new();
 
     public PacketRouter(Action<string, byte[]> sendBinaryAction)
     {
@@ -57,8 +61,8 @@ public class PacketRouter
 
                 switch (packet)
                 {
-                    case EnterPacket enterPacket: new EnterPacketHandler(SendPacket).Handle(senderSessionId, enterPacket); break;
-                    case SetRockPacket setRockPacket: new SetRockHandler(SendPacket).Handle(senderSessionId, setRockPacket); break;
+                    case EnterPacket enterPacket: new EnterPacketHandler(SendPacket, _userManager, _roomManager).Handle(senderSessionId, enterPacket); break;
+                    case SetRockPacket setRockPacket: new SetRockHandler(SendPacket,  _userManager, _roomManager).Handle(senderSessionId, setRockPacket); break;
                     default: throw new NotSupportedException($"Unsupported packet type: {packet.GetType().Name}");
                 }
             }

@@ -3,11 +3,11 @@ using GomokuServer.Config;
 
 namespace GomokuServer.Users;
 
-public static class UserManager
+public class UserManager : Manager
 {
-    private static Dictionary<string, User> _connectedUsers = new Dictionary<string, User>();
+    private Dictionary<string, User> _connectedUsers = new Dictionary<string, User>();
 
-    public static (ErrorCode ErrorCode, User? User) AddUser(string sessionId)
+    public (ErrorCode ErrorCode, User? User) AddUser(string sessionId)
     {
         if (IsFull())
         {
@@ -24,7 +24,7 @@ public static class UserManager
         return (ErrorCode.NONE, user);
     }
 
-    public static (ErrorCode ErrorCode, User? User) GetUser(string sessionId)
+    public (ErrorCode ErrorCode, User? User) GetUser(string sessionId)
     {
         if (!_connectedUsers.TryGetValue(sessionId, out var user))
         {
@@ -34,7 +34,7 @@ public static class UserManager
         return (ErrorCode.NONE, user);
     }
 
-    private static bool IsFull()
+    private bool IsFull()
     {
         var maxUserCount = GameConfig.MaxUserCountPerServer;
         return _connectedUsers.Count >= maxUserCount;

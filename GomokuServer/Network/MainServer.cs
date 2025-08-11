@@ -6,7 +6,7 @@ namespace GomokuServer.Network;
 class MainServer : AppServer<NetworkSession, PktBinaryRequestInfo>
 {
     public MainServer() : base(new DefaultReceiveFilterFactory<ReceiveFilter, PktBinaryRequestInfo>()) { }
-
+    
     public void SendToSession(string sessionId, byte[] data)
     {
         var session = GetSessionByID(sessionId);

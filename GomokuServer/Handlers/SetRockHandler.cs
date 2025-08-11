@@ -6,7 +6,7 @@ namespace GomokuServer.Handlers;
 
 public class SetRockHandler : PacketHandler<SetRockPacket>
 {
-    public SetRockHandler(Action<string, Packet> sendPacket) : base(sendPacket) { }
+    public SetRockHandler(Action<string, Packet> sendPacket, UserManager userManager, RoomManager roomManager) : base(sendPacket, userManager, roomManager) { }
 
     public override void Handle(string SenderSessionId, SetRockPacket packet)
     {
