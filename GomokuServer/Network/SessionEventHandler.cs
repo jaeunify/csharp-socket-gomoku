@@ -7,30 +7,30 @@ namespace GomokuServer.Network;
 // 이로 인해 MainServer는 PacketRouter 와의 의존성 없앨 수 있습니다.
 public class SessionEventHandler
 {
-    private readonly ILog _Logger;
-    private readonly PacketRouter _PacketRouter;
+    private readonly ILog _logger;
+    private readonly PacketRouter _packetRouter;
 
     public SessionEventHandler(ILog logger, PacketRouter packetRouter)
     {
-        _Logger = logger;
-        _PacketRouter = packetRouter;
+        _logger = logger;
+        _packetRouter = packetRouter;
     }
 
     public void OnConnected(NetworkSession session)
     {
-        _Logger.Debug($"[{DateTime.Now}] 세션 번호 {session.SessionID} 접속 start, ThreadId: {Thread.CurrentThread.ManagedThreadId}");
+        _logger.Debug($"[{DateTime.Now}] 세션 번호 {session.SessionID} 접속 start, ThreadId: {Thread.CurrentThread.ManagedThreadId}");
     }
 
     public void OnClosed(NetworkSession session, CloseReason reason)
     {
-        _Logger.Info($"[{DateTime.Now}] 세션 번호 {session.SessionID},  접속해제: {reason.ToString()}");
+        _logger.Info($"[{DateTime.Now}] 세션 번호 {session.SessionID},  접속해제: {reason.ToString()}");
         // TODO PacketRouter.InsertPacket(퇴장패킷);
     }
 
     public void RequestReceived(NetworkSession session, PktBinaryRequestInfo reqInfo)
     {
-        _Logger.Debug($"[{DateTime.Now}] 세션 번호 {session.SessionID},  받은 데이터 크기: {reqInfo.Body.Length}, ThreadId: {Thread.CurrentThread.ManagedThreadId}");
+        _logger.Debug($"[{DateTime.Now}] 세션 번호 {session.SessionID},  받은 데이터 크기: {reqInfo.Body.Length}, ThreadId: {Thread.CurrentThread.ManagedThreadId}");
         reqInfo.SessionId = session.SessionID;
-        _PacketRouter.InsertPacket(reqInfo);
+        _packetRouter.InsertPacket(reqInfo);
     }
 }

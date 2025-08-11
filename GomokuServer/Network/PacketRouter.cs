@@ -7,29 +7,29 @@ namespace GomokuServer.Network;
 
 public class PacketRouter
 {
-    private bool IsThreadRunning = false;
-    private BufferBlock<PktBinaryRequestInfo> _MsgBuffer = new();
-    private Action<string, byte[]> _SendBinary;
+    private bool _isThreadRunning = false;
+    private BufferBlock<PktBinaryRequestInfo> _msgBuffer = new();
+    private Action<string, byte[]> _sendBinary;
 
     public PacketRouter(Action<string, byte[]> sendBinaryAction)
     {
-        _SendBinary = sendBinaryAction;
+        _sendBinary = sendBinaryAction;
     }
 
     public void CreateAndStart()
     {
-        IsThreadRunning = true;
+        _isThreadRunning = true;
         new Thread(this.Route).Start();
     }
 
     public void Destroy()
     {
-        IsThreadRunning = false;
+        _isThreadRunning = false;
     }
 
     public void InsertPacket(PktBinaryRequestInfo data)
     {
-        _MsgBuffer.Post(data);
+        _msgBuffer.Post(data);
     }
 
     public void SendPacket(string sessionId, Packet packet)
@@ -41,14 +41,14 @@ public class PacketRouter
         dataSource.AddRange(BitConverter.GetBytes(totalSize));
         dataSource.AddRange(body);
 
-        _SendBinary(sessionId, dataSource.ToArray());
+        _sendBinary(sessionId, dataSource.ToArray());
     }
 
     private void Route()
     {
-        while (IsThreadRunning)
+        while (_isThreadRunning)
         {
-            var serializedPacket = _MsgBuffer.Receive();
+            var serializedPacket = _msgBuffer.Receive();
             var senderSessionId = serializedPacket.SessionId;
 
             try
@@ -64,7 +64,7 @@ public class PacketRouter
             }
             catch (Exception ex)
             {
-                if (IsThreadRunning)
+                if (_isThreadRunning)
                 {
                     // TODO log
                 }

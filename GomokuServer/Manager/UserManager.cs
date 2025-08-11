@@ -5,7 +5,7 @@ namespace GomokuServer.Manager;
 
 public static class UserManager
 {
-    private static Dictionary<string, User> _ConnectedUsers = new Dictionary<string, User>();
+    private static Dictionary<string, User> _connectedUsers = new Dictionary<string, User>();
 
     public static (ERROR_CODE ErrorCode, User? User) AddUser(string sessionId)
     {
@@ -14,19 +14,19 @@ public static class UserManager
             return (ERROR_CODE.USER_COUNT_FULL, null);
         }
 
-        if (_ConnectedUsers.ContainsKey(sessionId))
+        if (_connectedUsers.ContainsKey(sessionId))
         {
             return (ERROR_CODE.USER_ALREADY_EXIST, null);
         }
 
         var user = new User(sessionId);
-        _ConnectedUsers[sessionId] = user;
+        _connectedUsers[sessionId] = user;
         return (ERROR_CODE.NONE, user);
     }
 
     public static (ERROR_CODE ErrorCode, User? User) GetUser(string sessionId)
     {
-        if (!_ConnectedUsers.TryGetValue(sessionId, out var user))
+        if (!_connectedUsers.TryGetValue(sessionId, out var user))
         {
             return (ERROR_CODE.UNKNOWN_USER, null);
         }
@@ -37,6 +37,6 @@ public static class UserManager
     private static bool IsFull()
     {
         var maxUserCount = GameOption.MaxUserCountPerServer;
-        return _ConnectedUsers.Count >= maxUserCount;
+        return _connectedUsers.Count >= maxUserCount;
     }
 }

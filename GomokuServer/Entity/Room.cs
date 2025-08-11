@@ -9,9 +9,9 @@ public class Room
     public int RoomId { get; private set; }
     public bool IsPlaying { get; private set; } = false;
 
-    private Dictionary<int, User> _ConnectedUsers = new Dictionary<int, User>(); // userId-User 매핑
+    private Dictionary<int, User> _connectedUsers = new Dictionary<int, User>(); // userId-User 매핑
     private User? _nowTurnUser = null;
-    private List<List<int>>? _Board;
+    private List<List<int>>? _board;
 
     public Room()
     {
@@ -26,13 +26,13 @@ public class Room
             return ERROR_CODE.USER_COUNT_FULL;
         }
 
-        _ConnectedUsers[user.UserId] = user;
+        _connectedUsers[user.UserId] = user;
         return ERROR_CODE.NONE;
     }
 
     public void Leave(User user)
     {
-        _ConnectedUsers.Remove(user.UserId);
+        _connectedUsers.Remove(user.UserId);
     }
 
     public void Start()
@@ -40,7 +40,7 @@ public class Room
         IsPlaying = true;
 
         // 보드를 초기화합니다.
-        _Board = new List<List<int>>();
+        _board = new List<List<int>>();
         var boardSize = GameOption.BoardSize;
         for (int i = 0; i < boardSize; i++)
         {
@@ -49,7 +49,7 @@ public class Room
             {
                 row.Add(-1);
             }
-            _Board.Add(row);
+            _board.Add(row);
         }
 
         // 선 플레이어를 정합니다.
@@ -64,7 +64,7 @@ public class Room
     /// <returns>게임이 종료되었는지 리턴합니다.</returns>
     public ERROR_CODE SetRock(User user, int x, int y)
     {
-        if (IsPlaying == false || _Board == null)
+        if (IsPlaying == false || _board == null)
         {
             return ERROR_CODE.GAME_UNSTARTED;
         }
@@ -74,18 +74,18 @@ public class Room
             return ERROR_CODE.NOT_MY_TURN;
         }
 
-        if (x < 0 || y < 0 || x >= _Board.Count || y >= _Board[x].Count)
+        if (x < 0 || y < 0 || x >= _board.Count || y >= _board[x].Count)
         {
             return ERROR_CODE.INVALID_ROCK_POSITION;
         }
-        var board = _Board;
+        var board = _board;
 
-        if (_Board[y][x] != -1)
+        if (_board[y][x] != -1)
         {
             return ERROR_CODE.ALREADY_SET_ROCK_POSITION;
         }
 
-        _Board[y][x] = user.UserId;
+        _board[y][x] = user.UserId;
 
         // 다음 턴을 상대 유저로 변경합니다.
         _nowTurnUser = GetOtherUser(user);
@@ -95,11 +95,11 @@ public class Room
 
     public bool IsGameEnd()
     {
-        if (_Board == null)
+        if (_board == null)
         {
             return false;
         }
-        int size = _Board.Count;
+        int size = _board.Count;
 
         // 4가지 방향 (오른쪽, 아래, 오른쪽아래, 왼쪽아래)
         int[][] directions = new int[][]
@@ -114,7 +114,7 @@ public class Room
         {
             for (int x = 0; x < size; x++)
             {
-                int stone = _Board[y][x];
+                int stone = _board[y][x];
                 if (stone == -1)
                 {
                     continue; // 빈 칸이면 무시
@@ -130,7 +130,7 @@ public class Room
                     int nx = x + dx;
                     int ny = y + dy;
 
-                    while (nx >= 0 && ny >= 0 && nx < size && ny < size && _Board[ny][nx] == stone)
+                    while (nx >= 0 && ny >= 0 && nx < size && ny < size && _board[ny][nx] == stone)
                     {
                         count++;
                         if (count == 5)
@@ -165,17 +165,17 @@ public class Room
 
     public List<User> GetUsers()
     {
-        return _ConnectedUsers.Values.ToList();
+        return _connectedUsers.Values.ToList();
     }
 
     public User GetOtherUser(User user)
     {
-        return _ConnectedUsers.Values.FirstOrDefault(u => u != user)
+        return _connectedUsers.Values.FirstOrDefault(u => u != user)
         ?? throw new Exception("impossible fatal error: other user not found");
     }
 
     public int GetUserCount()
     {
-        return _ConnectedUsers.Count;
+        return _connectedUsers.Count;
     }
 }
