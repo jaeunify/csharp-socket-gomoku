@@ -9,14 +9,21 @@ public class SetRockHandler : PacketHandler<SetRockPacket>
 
     public override void Handle(string SenderSessionId, SetRockPacket packet)
     {
-        var (roomGetResut, room) = RoomManager.GetRoom(SenderSessionId);
+        var (errorCode, user) = UserManager.GetUser(SenderSessionId);
+        if (errorCode != ERROR_CODE.NONE || user is null)
+        {
+            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
+            return;
+        }
+
+        var (roomGetResut, room) = RoomManager.GetRoom(user);
         if (roomGetResut != ERROR_CODE.NONE || room is null)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = roomGetResut });
             return;
         }
 
-        var setRockResult = room.SetRock(SenderSessionId, packet.X, packet.Y);
+        var setRockResult = room.SetRock(user, packet.X, packet.Y);
         if (setRockResult != ERROR_CODE.NONE)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = setRockResult });
@@ -24,7 +31,7 @@ public class SetRockHandler : PacketHandler<SetRockPacket>
         }
 
         // 상대 유저에게 수를 놓았음을 알립니다.
-        var otherUser = room.GetOtherUser(SenderSessionId);
+        var otherUser = room.GetOtherUser(user);
         SendPacket(otherUser.SessionId, packet);
 
         // 게임이 종료되었으면 모든 유저에게 게임 종료 패킷을 보냅니다.

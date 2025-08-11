@@ -29,8 +29,8 @@ public class EnterPacketHandler : PacketHandler<EnterPacket>
         {
             room.Start();
 
-            var otherUser = room.GetOtherUser(sessionID);
-            var IsMyTurn = room.IsMyTurn(sessionID);
+            var otherUser = room.GetOtherUser(user);
+            var IsMyTurn = room.IsMyTurn(user);
             SendPacket(user.SessionId, new GameStartPacket() { AmIFirst = IsMyTurn });
             SendPacket(otherUser.SessionId, new GameStartPacket() { AmIFirst = !IsMyTurn });
         }

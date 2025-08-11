@@ -8,8 +8,8 @@ public class Room
     private static int RoomIdCounter = 0;
     public int RoomId { get; private set; }
     public bool IsPlaying { get; private set; } = false;
-    private Dictionary<string, User> ConnectedUsers = new Dictionary<string, User>(); // sessionId-User 매핑
-    private string turnSessionId;
+    private Dictionary<int, User> ConnectedUsers = new Dictionary<int, User>(); // userId-User 매핑
+    private User? nowTurnUser = null;
 
     // Game
     private List<List<int>>? Board;
@@ -26,13 +26,13 @@ public class Room
             return ERROR_CODE.USER_COUNT_FULL;
         }
 
-        ConnectedUsers[user.SessionId] = user;
+        ConnectedUsers[user.UserId] = user;
         return ERROR_CODE.NONE;
     }
 
     public void Leave(User user)
     {
-        ConnectedUsers.Remove(user.SessionId);
+        ConnectedUsers.Remove(user.UserId);
     }
 
     public void Start()
@@ -55,12 +55,12 @@ public class Room
         // 선 플레이어를 정합니다.
         var users = GetUsers();
         var random = new Random().Next(0, 2); // 0 또는 1을 랜덤으로 선택
-        turnSessionId = users[random].SessionId;
+        nowTurnUser = users[random];
     }
 
     public bool IsFull()
     {
-        return ConnectedUsers.Count >= 2;
+        return GetUserCount() >= 2;
     }
 
     public bool IsReadyToStart()
@@ -68,9 +68,9 @@ public class Room
         return !IsPlaying && IsFull();
     }
 
-    public bool IsMyTurn(string sessionId)
+    public bool IsMyTurn(User user)
     {
-        return turnSessionId == sessionId;
+        return nowTurnUser == user;
     }
 
     public List<User> GetUsers()
@@ -78,9 +78,9 @@ public class Room
         return ConnectedUsers.Values.ToList();
     }
 
-    public User GetOtherUser(string sessionId)
+    public User GetOtherUser(User user)
     {
-        return ConnectedUsers.Values.FirstOrDefault(user => user.SessionId != sessionId)
+        return ConnectedUsers.Values.FirstOrDefault(u => u != user)
         ?? throw new Exception("impossible fatal error: other user not found");
     }
 
@@ -93,14 +93,14 @@ public class Room
     /// 수를 놓습니다.
     /// </summary>
     /// <returns>게임이 종료되었는지 리턴합니다.</returns>
-    public ERROR_CODE SetRock(string sessionId, int x, int y)
+    public ERROR_CODE SetRock(User user, int x, int y)
     {
         if (IsPlaying == false || Board == null)
         {
             return ERROR_CODE.GAME_UNSTARTED;
         }
 
-        if (!IsMyTurn(sessionId))
+        if (!IsMyTurn(user))
         {
             return ERROR_CODE.NOT_MY_TURN;
         }
@@ -116,10 +116,10 @@ public class Room
             return ERROR_CODE.ALREADY_SET_ROCK_POSITION;
         }
 
-        Board[y][x] = ConnectedUsers[sessionId].UserId;
+        Board[y][x] = user.UserId;
 
         // 다음 턴을 상대 유저로 변경합니다.
-        turnSessionId = GetOtherUser(sessionId).SessionId;
+        nowTurnUser = GetOtherUser(user);
 
         return ERROR_CODE.NONE;
     }

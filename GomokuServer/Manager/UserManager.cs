@@ -20,7 +20,7 @@ public static class UserManager
         return (ERROR_CODE.NONE, user);
     }
 
-    public static (ERROR_CODE ErrorCode, User? User) GetUser(string sessionId) // todo 삭제 고려
+    public static (ERROR_CODE ErrorCode, User? User) GetUser(string sessionId)
     {
         if (!ConnectedUsers.TryGetValue(sessionId, out var user))
             return (ERROR_CODE.UNKNOWN_USER, null);
