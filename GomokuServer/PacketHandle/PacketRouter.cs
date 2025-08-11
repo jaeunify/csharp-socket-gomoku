@@ -2,14 +2,17 @@ using System.Threading.Tasks.Dataflow;
 using GomokuPacket;
 using MessagePack;
 
-public partial class PacketRouter
+public class PacketRouter
 {
     bool IsThreadRunning = false;
 
-    private Dictionary<PacketId, Action<string, Packet>> PacketHandlerMap;
-
     private BufferBlock<PktBinaryRequestInfo> MsgBuffer = new();
     private Action<string, byte[]> SendBinaryAction;
+
+    public PacketRouter(Action<string, byte[]> sendBinaryAction)
+    {
+        SendBinaryAction = sendBinaryAction;
+    }
 
     public void CreateAndStart()
     {
