@@ -14,10 +14,16 @@ public class PacketProcessor
     private Action<string, byte[]> _sendBinary;
     private UserManager _userManager = new();
     private RoomManager _roomManager = new();
+    private Dictionary<PacketId, Action<string, Packet>> _packetHandlers = new();
 
     public PacketProcessor(Action<string, byte[]> sendBinaryAction)
     {
         _sendBinary = sendBinaryAction;
+
+        var enterHandler = new EnterPacketHandler(SendPacket, _userManager, _roomManager);
+        _packetHandlers.Add(PacketId.Enter, (sessionId, packet) => enterHandler.Handle(sessionId, (EnterPacket)packet));
+        var setRockHandler = new SetRockHandler(SendPacket, _userManager, _roomManager);
+        _packetHandlers.Add(PacketId.SetRock, (sessionId, packet) => setRockHandler.Handle(sessionId, (SetRockPacket)packet));
     }
 
     public void CreateAndStart()
