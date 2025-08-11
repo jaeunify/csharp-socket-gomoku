@@ -18,7 +18,7 @@ public class ServerClient : Instance
     private bool isRunning = false;
     public event Action<Packet>? OnReceivePacket;
     public event Action<string>? OnReceiveErrorPacket;
-    public event Action<Packet>? OnSendPacket;
+    public event Func<Packet, bool>? OnSendPacket;
     public event Action? OnError;
 
     public ServerClient(LogState logstore)
@@ -52,10 +52,20 @@ public class ServerClient : Instance
 
 
     /// <returns>int byteCount: 전송한 바이너리의 전체 길이</returns>
-    public async Task<int> SendAsync(Packet packet, bool triggerEvent = false)
+    public async Task SendAsync(Packet packet, bool triggerEvent = false)
     {
         if (stream == null)
             throw new Exception("서버 연결이 되어 있지 않습니다");
+
+        if (triggerEvent && OnSendPacket is not null)
+        {
+            var isSuccess = OnSendPacket.Invoke(packet);
+            if (!isSuccess)
+            {
+                LogState.AddLog($"[전송 실패] {packet.PacketId} {JsonSerializer.Serialize(packet)}");
+                return;
+            }
+        }
 
         var body = MessagePackSerializer.Serialize(packet);
         short totalSize = (short)(HEADER_SIZE + body.Length);
@@ -66,13 +76,7 @@ public class ServerClient : Instance
 
         await stream.WriteAsync(bytes.ToArray(), 0, bytes.Count);
 
-        if (triggerEvent)
-        {
-            OnSendPacket?.Invoke(packet);
-        }
-
         LogState.AddLog($"[전송] {packet.PacketId} {JsonSerializer.Serialize(packet)}");
-        return bytes.Count;
     }
 
     private void ReceiveLoop()
@@ -144,14 +148,14 @@ public class ServerClient : Instance
 
             var errorMessage = errorPacket.ErrorCode switch
             {
-                ERROR_CODE.USER_COUNT_FULL => "서버에 접속 가능한 유저 수가 가득 찼습니다. 접속 중인 클라이언트를 종료하고 다시 시도해주세요.",
-                ERROR_CODE.USER_ALREADY_EXIST => "이미 동일한 세션 아이디로 Enter 하셨습니다. 다음 프로토콜인 SetRock을 진행하세요.",
-                ERROR_CODE.UNKNOWN_USER => "존재하지 않는 유저입니다.",
-                ERROR_CODE.UNENTERED_USER => "Enter 프로토콜을 먼저 진행해야 합니다.",
-                ERROR_CODE.GAME_UNSTARTED => "게임이 시작되지 않은 상태입니다. 상대방이 입장하기를 기다리세요.",
-                ERROR_CODE.INVALID_ROCK_POSITION => "x,y는 0이상 14이하여야 합니다. 다시 놓아 주세요.",
-                ERROR_CODE.ALREADY_SET_ROCK_POSITION => "이미 그 자리는 다른 돌이 놓여 있습니다. 다시 놓아 주세요.",
-                ERROR_CODE.NOT_MY_TURN => "당신의 차례가 아닙니다. 상대방의 차례를 기다리세요.",
+                ErrorCode.USER_COUNT_FULL => "서버에 접속 가능한 유저 수가 가득 찼습니다. 접속 중인 클라이언트를 종료하고 다시 시도해주세요.",
+                ErrorCode.USER_ALREADY_EXIST => "이미 동일한 세션 아이디로 Enter 하셨습니다. 다음 프로토콜인 SetRock을 진행하세요.",
+                ErrorCode.UNKNOWN_USER => "존재하지 않는 유저입니다.",
+                ErrorCode.UNENTERED_USER => "Enter 프로토콜을 먼저 진행해야 합니다.",
+                ErrorCode.GAME_UNSTARTED => "게임이 시작되지 않은 상태입니다. 상대방이 입장하기를 기다리세요.",
+                ErrorCode.INVALID_ROCK_POSITION => "x,y는 0이상 14이하여야 합니다. 다시 놓아 주세요.",
+                ErrorCode.ALREADY_SET_ROCK_POSITION => "이미 그 자리는 다른 돌이 놓여 있습니다. 다시 놓아 주세요.",
+                ErrorCode.NOT_MY_TURN => "당신의 차례가 아닙니다. 상대방의 차례를 기다리세요.",
                 _ => throw new Exception("알 수 없는 에러 코드")
             };
             OnReceiveErrorPacket?.Invoke(errorMessage);

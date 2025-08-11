@@ -121,7 +121,7 @@
         GameState.HandleError();
     }
 
-    void HandleSendPacket(Packet packet)
+    bool HandleSendPacket(Packet packet)
     {
         if (packet is SetRockPacket setRockPacket)
         {
@@ -129,8 +129,10 @@
             if (!success)
             {
                 _ = Js.InvokeVoidAsync("alert", msg);
-                return;
+                return false;
             }
         }
+
+        return true;
     }
 }

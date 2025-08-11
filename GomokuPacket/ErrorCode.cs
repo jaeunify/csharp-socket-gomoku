@@ -1,6 +1,6 @@
 namespace GomokuPacket;
 
-public enum ERROR_CODE : ushort
+public enum ErrorCode : ushort
 {
     NONE = 0, // 에러가 아니다
 

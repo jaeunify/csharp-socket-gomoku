@@ -6,7 +6,7 @@ namespace GomokuPacket;
 public partial class ErrorPacket : Packet
 {
     [Key(1)]
-    public ERROR_CODE ErrorCode { get; set; }
+    public ErrorCode ErrorCode { get; set; }
 
     public ErrorPacket() : base(PacketId.Error) { }
 }
