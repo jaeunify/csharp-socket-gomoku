@@ -45,18 +45,13 @@
   - [x] 승패 판단 및 게임 종료 로직
   - [x] README 작성
 
-- [ ] Step 4 오목 클라이언트 개발 (8/7)
+- [x] Step 4 오목 클라이언트 개발 (8/7)
 
   - [x] WFP 기반 오목 클라이언트 제작
-  - [ ] 명령어 입력 및 보드 출력 구현
+  - [x] 명령어 입력 및 보드 출력 구현
   - [x] 클라이언트 간 통신 테스트 (2인 대전 시뮬레이션)
-  - [ ] 리팩토링 및 코드 정리
-  - [ ] README 작성
-
-- [ ] 선택 과제 (시간 여유 있을 시)
-
-  - [ ] 오목 API 서버 제작 (예: 매칭 대기열 관리용 REST API)
-  - [ ] 오목 매칭 서버 별도 구성 (`MatchServer`)
+  - [x] 리팩토링 및 코드 정리
+  - [x] README 작성
 
 <!-- force spacing --> <p>&nbsp</p> <p>&nbsp</p> 
      
@@ -103,7 +98,8 @@
 
 ### GomokuClient
 - EchoWpfBlazorClient를 템플릿으로, 기능을 확장
-- (추가 예정) 오목 게임 클라이언트
+- 오목 게임 클라이언트
+<img width="1716" height="965" alt="image" src="https://github.com/user-attachments/assets/975685ae-0490-4bb0-af87-37aca9ebb8d1" />
 
 ### 프로토콜 흐름
 ```mermaid
