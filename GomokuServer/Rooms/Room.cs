@@ -1,6 +1,8 @@
 using GomokuPacket;
+using GomokuServer.Config;
+using GomokuServer.Users;
 
-namespace GomokuServer.Entity;
+namespace GomokuServer.Rooms;
 
 public class Room
 {
@@ -19,15 +21,15 @@ public class Room
         RoomId = RoomIdCounter++;
     }
 
-    public ERROR_CODE Enter(User user)
+    public ErrorCode Enter(User user)
     {
         if (IsFull())
         {
-            return ERROR_CODE.USER_COUNT_FULL;
+            return ErrorCode.USER_COUNT_FULL;
         }
 
         _connectedUsers[user.UserId] = user;
-        return ERROR_CODE.NONE;
+        return ErrorCode.NONE;
     }
 
     public void Leave(User user)
@@ -41,7 +43,7 @@ public class Room
 
         // 보드를 초기화합니다.
         _board = new List<List<int>>();
-        var boardSize = GameOption.BoardSize;
+        var boardSize = GameConfig.BoardSize;
         for (int i = 0; i < boardSize; i++)
         {
             var row = new List<int>();
@@ -62,27 +64,27 @@ public class Room
     /// 수를 놓습니다.
     /// </summary>
     /// <returns>게임이 종료되었는지 리턴합니다.</returns>
-    public ERROR_CODE SetRock(User user, int x, int y)
+    public ErrorCode SetRock(User user, int x, int y)
     {
         if (IsPlaying == false || _board == null)
         {
-            return ERROR_CODE.GAME_UNSTARTED;
+            return ErrorCode.GAME_UNSTARTED;
         }
 
         if (!IsMyTurn(user))
         {
-            return ERROR_CODE.NOT_MY_TURN;
+            return ErrorCode.NOT_MY_TURN;
         }
 
         if (x < 0 || y < 0 || x >= _board.Count || y >= _board[x].Count)
         {
-            return ERROR_CODE.INVALID_ROCK_POSITION;
+            return ErrorCode.INVALID_ROCK_POSITION;
         }
         var board = _board;
 
         if (_board[y][x] != -1)
         {
-            return ERROR_CODE.ALREADY_SET_ROCK_POSITION;
+            return ErrorCode.ALREADY_SET_ROCK_POSITION;
         }
 
         _board[y][x] = user.UserId;
@@ -90,7 +92,7 @@ public class Room
         // 다음 턴을 상대 유저로 변경합니다.
         _nowTurnUser = GetOtherUser(user);
 
-        return ERROR_CODE.NONE;
+        return ErrorCode.NONE;
     }
 
     public bool IsGameEnd()

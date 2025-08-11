@@ -1,6 +1,6 @@
 using GomokuPacket;
 
-namespace GomokuServer.Network.Handler;
+namespace GomokuServer.Handlers;
 
 public abstract class PacketHandler<TPacket> where TPacket : Packet
 {

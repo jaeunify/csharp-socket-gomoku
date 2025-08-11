@@ -1,7 +1,7 @@
-using GomokuServer.Entity;
 using GomokuPacket;
+using GomokuServer.Users;
 
-namespace GomokuServer.Manager;
+namespace GomokuServer.Rooms;
 
 public static class RoomManager
 {
@@ -9,12 +9,12 @@ public static class RoomManager
     private static Dictionary<int, int> _userIdRoomId = new Dictionary<int, int>(); // userId-RoomId 매핑
     private static Room? _pendingRoom = null;
 
-    public static (ERROR_CODE errorCode, Room room) Enter(User user)
+    public static (ErrorCode errorCode, Room room) Enter(User user)
     {
         if (_userIdRoomId.TryGetValue(user.UserId, out var roomId))
         {
             // TODO 재접속
-            return (ERROR_CODE.NONE, _rooms[roomId]);
+            return (ErrorCode.NONE, _rooms[roomId]);
         }
         else
         {
@@ -23,7 +23,7 @@ public static class RoomManager
             {
                 // 내가 첫 입장인 경우, 방을 생성하고 PendingRoom에 등록
                 room = new Room();
-                _pendingRoom = room; 
+                _pendingRoom = room;
             }
             else
             {
@@ -40,11 +40,11 @@ public static class RoomManager
         }
     }
 
-    public static ERROR_CODE Leave(User user) // todo use
+    public static ErrorCode Leave(User user) // todo use
     {
         if (!_userIdRoomId.TryGetValue(user.UserId, out int roomId))
         {
-            return ERROR_CODE.UNENTERED_USER;
+            return ErrorCode.UNENTERED_USER;
         }
 
         if (!_rooms.TryGetValue(roomId, out var room))
@@ -60,14 +60,14 @@ public static class RoomManager
             _rooms.Remove(roomId);
         }
 
-        return ERROR_CODE.NONE;
+        return ErrorCode.NONE;
     }
 
-    public static (ERROR_CODE errorCode, Room? room) GetRoom(User user)
+    public static (ErrorCode errorCode, Room? room) GetRoom(User user)
     {
         if (!_userIdRoomId.TryGetValue(user.UserId, out int roomId))
         {
-            return (ERROR_CODE.UNENTERED_USER, null);
+            return (ErrorCode.UNENTERED_USER, null);
         }
 
         if (!_rooms.TryGetValue(roomId, out var room))
@@ -75,6 +75,6 @@ public static class RoomManager
             throw new Exception("impossible fatal error: room not found");
         }
 
-        return (ERROR_CODE.NONE, room);
+        return (ErrorCode.NONE, room);
     }
 }

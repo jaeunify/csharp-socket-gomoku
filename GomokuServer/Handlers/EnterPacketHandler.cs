@@ -1,7 +1,8 @@
-using GomokuServer.Manager;
+using GomokuServer.Users;
+using GomokuServer.Rooms;
 using GomokuPacket;
 
-namespace GomokuServer.Network.Handler;
+namespace GomokuServer.Handlers;
 
 public class EnterPacketHandler : PacketHandler<EnterPacket>
 {
@@ -9,14 +10,14 @@ public class EnterPacketHandler : PacketHandler<EnterPacket>
     public override void Handle(string SenderSessionId, EnterPacket packet)
     {
         var (errorCode, user) = UserManager.AddUser(SenderSessionId);
-        if (errorCode != ERROR_CODE.NONE || user is null)
+        if (errorCode != ErrorCode.NONE || user is null)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
         }
 
         (errorCode, var room) = RoomManager.Enter(user);
-        if (errorCode != ERROR_CODE.NONE || room is null)
+        if (errorCode != ErrorCode.NONE || room is null)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;

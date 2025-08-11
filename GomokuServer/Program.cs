@@ -1,8 +1,8 @@
-﻿// EchoServer.csproj 에서 default namespace 를 EchoServer 로 설정했습니다. -> namespace 생략
-
-using GomokuServer.Network;
-using SuperSocketLite.SocketBase;
+﻿using SuperSocketLite.SocketBase;
 using SuperSocketLite.SocketBase.Config;
+
+using GomokuServer.Config;
+using GomokuServer.Network;
 
 class Program
 {
@@ -32,11 +32,11 @@ class Program
     {
         var server = new MainServer();
 
-        var config = new ServerConfig
+        var config = new SuperSocketLite.SocketBase.Config.ServerConfig
         {
             Port = 32452,
             Ip = "Any",
-            MaxConnectionNumber = GameOption.MaxUserCountPerServer,
+            MaxConnectionNumber = GameConfig.MaxUserCountPerServer,
             Mode = SocketMode.Tcp,
             Name = "Gomoku Server"
         };

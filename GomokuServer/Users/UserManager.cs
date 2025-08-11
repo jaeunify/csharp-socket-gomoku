@@ -1,42 +1,42 @@
-using GomokuServer.Entity;
 using GomokuPacket;
+using GomokuServer.Config;
 
-namespace GomokuServer.Manager;
+namespace GomokuServer.Users;
 
 public static class UserManager
 {
     private static Dictionary<string, User> _connectedUsers = new Dictionary<string, User>();
 
-    public static (ERROR_CODE ErrorCode, User? User) AddUser(string sessionId)
+    public static (ErrorCode ErrorCode, User? User) AddUser(string sessionId)
     {
         if (IsFull())
         {
-            return (ERROR_CODE.USER_COUNT_FULL, null);
+            return (ErrorCode.USER_COUNT_FULL, null);
         }
 
         if (_connectedUsers.ContainsKey(sessionId))
         {
-            return (ERROR_CODE.USER_ALREADY_EXIST, null);
+            return (ErrorCode.USER_ALREADY_EXIST, null);
         }
 
         var user = new User(sessionId);
         _connectedUsers[sessionId] = user;
-        return (ERROR_CODE.NONE, user);
+        return (ErrorCode.NONE, user);
     }
 
-    public static (ERROR_CODE ErrorCode, User? User) GetUser(string sessionId)
+    public static (ErrorCode ErrorCode, User? User) GetUser(string sessionId)
     {
         if (!_connectedUsers.TryGetValue(sessionId, out var user))
         {
-            return (ERROR_CODE.UNKNOWN_USER, null);
+            return (ErrorCode.UNKNOWN_USER, null);
         }
 
-        return (ERROR_CODE.NONE, user);
+        return (ErrorCode.NONE, user);
     }
 
     private static bool IsFull()
     {
-        var maxUserCount = GameOption.MaxUserCountPerServer;
+        var maxUserCount = GameConfig.MaxUserCountPerServer;
         return _connectedUsers.Count >= maxUserCount;
     }
 }

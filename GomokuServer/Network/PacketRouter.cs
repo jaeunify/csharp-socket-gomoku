@@ -1,5 +1,5 @@
 using System.Threading.Tasks.Dataflow;
-using GomokuServer.Network.Handler;
+using GomokuServer.Handlers;
 using GomokuPacket;
 using MessagePack;
 
@@ -35,7 +35,7 @@ public class PacketRouter
     public void SendPacket(string sessionId, Packet packet)
     {
         var body = MessagePackSerializer.Serialize(packet);
-        var totalSize = (Int16)(body.Length + ServerOption.HeaderSize);
+        var totalSize = (Int16)(body.Length + ServerConfig.HeaderSize);
 
         List<byte> dataSource = new List<byte>();
         dataSource.AddRange(BitConverter.GetBytes(totalSize));

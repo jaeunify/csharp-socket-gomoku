@@ -1,7 +1,8 @@
-using GomokuServer.Manager;
+using GomokuServer.Users;
+using GomokuServer.Rooms;
 using GomokuPacket;
 
-namespace GomokuServer.Network.Handler;
+namespace GomokuServer.Handlers;
 
 public class SetRockHandler : PacketHandler<SetRockPacket>
 {
@@ -10,21 +11,21 @@ public class SetRockHandler : PacketHandler<SetRockPacket>
     public override void Handle(string SenderSessionId, SetRockPacket packet)
     {
         var (errorCode, user) = UserManager.GetUser(SenderSessionId);
-        if (errorCode != ERROR_CODE.NONE || user is null)
+        if (errorCode != ErrorCode.NONE || user is null)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
         }
 
         (errorCode, var room) = RoomManager.GetRoom(user);
-        if (errorCode != ERROR_CODE.NONE || room is null)
+        if (errorCode != ErrorCode.NONE || room is null)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
         }
 
         errorCode = room.SetRock(user, packet.X, packet.Y);
-        if (errorCode != ERROR_CODE.NONE)
+        if (errorCode != ErrorCode.NONE)
         {
             SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
