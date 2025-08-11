@@ -87,7 +87,11 @@ public class ServerClient : Instance
                     break;
                 }
 
-                ParsePackets(buffer, bytesRead);
+                var packets = ParsePackets(buffer, bytesRead);
+                foreach (var packet in packets)
+                {
+                    ProcessPacket(packet);
+                }
             }
             catch (Exception ex)
             {
@@ -98,9 +102,10 @@ public class ServerClient : Instance
         }
     }
 
-    private void ParsePackets(byte[] data, int length)
+    private List<Packet> ParsePackets(byte[] data, int length)
     {
         int offset = 0;
+        var packets = new List<Packet>();
 
         while (length - offset >= HEADER_SIZE)
         {
@@ -112,36 +117,37 @@ public class ServerClient : Instance
             byte[] body = new byte[totalSize - HEADER_SIZE];
             Buffer.BlockCopy(data, offset + HEADER_SIZE, body, 0, body.Length);
 
-            var packet = MessagePackSerializer.Deserialize<Packet>(body);
-
-            if (packet.PacketId > 0)
-            {
-                var runtimeType = packet.GetType();
-                var json = JsonSerializer.Serialize(Convert.ChangeType(packet, runtimeType));
-                OnReceivePacket?.Invoke(packet);
-                LogState?.AddLog($"[응답] {packet.PacketId} {json}");
-            }
-            else if (packet.PacketId == PacketId.Error)
-            {
-                OnError?.Invoke();
-
-                var errorPacket = (ErrorPacket)packet;
-                var errorMessage = errorPacket.ErrorCode switch
-                {
-                    ERROR_CODE.USER_COUNT_FULL => "서버에 접속 가능한 유저 수가 가득 찼습니다. 접속 중인 클라이언트를 종료하고 다시 시도해주세요.",
-                    ERROR_CODE.USER_ALREADY_EXIST => "이미 동일한 세션 아이디로 Enter 하셨습니다. 다음 프로토콜인 SetRock을 진행하세요.",
-                    ERROR_CODE.UNKNOWN_USER => "존재하지 않는 유저입니다.",
-                    ERROR_CODE.UNENTERED_USER => "Enter 프로토콜을 먼저 진행해야 합니다.",
-                    ERROR_CODE.GAME_UNSTARTED => "게임이 시작되지 않은 상태입니다. 상대방이 입장하기를 기다리세요.",
-                    ERROR_CODE.INVALID_ROCK_POSITION => "x,y는 0이상 14이하여야 합니다. 다시 놓아 주세요.",
-                    ERROR_CODE.ALREADY_SET_ROCK_POSITION => "이미 그 자리는 다른 돌이 놓여 있습니다. 다시 놓아 주세요.",
-                    ERROR_CODE.NOT_MY_TURN => "당신의 차례가 아닙니다. 상대방의 차례를 기다리세요.",
-                    _ => throw new Exception("알 수 없는 에러 코드")
-                };
-                OnErrorMessage?.Invoke(errorMessage);
-            }
-
+            packets.Add(MessagePackSerializer.Deserialize<Packet>(body));
             offset += totalSize;
+        }
+
+        return packets;
+    }
+
+    private void ProcessPacket(Packet packet)
+    {
+        if (packet.PacketId > 0)
+        {
+            OnReceivePacket?.Invoke(packet);
+            LogState?.AddLog($"[응답] {packet.PacketId} {JsonSerializer.Serialize(packet)}");
+        }
+        else if (packet is ErrorPacket errorPacket)
+        {
+            OnError?.Invoke();
+
+            var errorMessage = errorPacket.ErrorCode switch
+            {
+                ERROR_CODE.USER_COUNT_FULL => "서버에 접속 가능한 유저 수가 가득 찼습니다. 접속 중인 클라이언트를 종료하고 다시 시도해주세요.",
+                ERROR_CODE.USER_ALREADY_EXIST => "이미 동일한 세션 아이디로 Enter 하셨습니다. 다음 프로토콜인 SetRock을 진행하세요.",
+                ERROR_CODE.UNKNOWN_USER => "존재하지 않는 유저입니다.",
+                ERROR_CODE.UNENTERED_USER => "Enter 프로토콜을 먼저 진행해야 합니다.",
+                ERROR_CODE.GAME_UNSTARTED => "게임이 시작되지 않은 상태입니다. 상대방이 입장하기를 기다리세요.",
+                ERROR_CODE.INVALID_ROCK_POSITION => "x,y는 0이상 14이하여야 합니다. 다시 놓아 주세요.",
+                ERROR_CODE.ALREADY_SET_ROCK_POSITION => "이미 그 자리는 다른 돌이 놓여 있습니다. 다시 놓아 주세요.",
+                ERROR_CODE.NOT_MY_TURN => "당신의 차례가 아닙니다. 상대방의 차례를 기다리세요.",
+                _ => throw new Exception("알 수 없는 에러 코드")
+            };
+            OnErrorMessage?.Invoke(errorMessage);
         }
     }
 }
