@@ -9,12 +9,12 @@ public static class RoomManager
     private static Dictionary<string, int> SessionIdRoomId = new Dictionary<string, int>(); // sessionId-RoomId 매핑
     private static Room? PendingRoom = null;
 
-    public static Room Enter(User user)
+    public static (ERROR_CODE errorCode, Room? room) Enter(User user)
     {
         if (SessionIdRoomId.TryGetValue(user.SessionId, out var roomId))
         {
             // TODO 재접속
-            return Rooms[roomId];
+            return (ERROR_CODE.NONE, Rooms[roomId]);
         }
         else
         {
@@ -34,8 +34,13 @@ public static class RoomManager
             Rooms[room.RoomId] = room;
             SessionIdRoomId[user.SessionId] = room.RoomId;
 
-            room.Enter(user);
-            return room;
+            var enterResult = room.Enter(user);
+            if (enterResult != ERROR_CODE.NONE)
+            {
+                return (enterResult, null);
+            }
+
+            return (ERROR_CODE.NONE, room);
         }
     }
 

@@ -19,9 +19,15 @@ public class Room
         RoomId = RoomIdCounter++;
     }
 
-    public void Enter(User user)
+    public ERROR_CODE Enter(User user)
     {
+        if (IsFull())
+        {
+            return ERROR_CODE.USER_COUNT_FULL;
+        }
+
         ConnectedUsers[user.SessionId] = user;
+        return ERROR_CODE.NONE;
     }
 
     public void Leave(User user)

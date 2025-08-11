@@ -17,7 +17,12 @@ public class EnterPacketHandler : PacketHandler<EnterPacket>
             return;
         }
 
-        var room = RoomManager.Enter(user);
+        (errorCode, var room) = RoomManager.Enter(user);
+        if (errorCode != ERROR_CODE.NONE || room is null)
+        {
+            SendPacket(sessionID, new ErrorPacket() { ErrorCode = errorCode });
+            return;
+        }
 
         // 방이 다 찼으면, 게임을 시작합니다.
         if (room.IsReadyToStart())
