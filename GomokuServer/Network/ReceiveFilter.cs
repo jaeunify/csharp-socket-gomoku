@@ -5,9 +5,7 @@ namespace GomokuServer.Network;
 
 public class ReceiveFilter : FixedHeaderReceiveFilter<PktBinaryRequestInfo>
 {
-    public ReceiveFilter() : base(ServerOption.HeaderSize)
-    {
-    }
+    public ReceiveFilter() : base(ServerOption.HeaderSize) { }
 
     protected override int GetBodyLengthFromHeader(byte[] header, int offset, int length)
     {

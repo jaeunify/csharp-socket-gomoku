@@ -16,17 +16,17 @@ public class SetRockHandler : PacketHandler<SetRockPacket>
             return;
         }
 
-        var (roomGetResut, room) = RoomManager.GetRoom(user);
-        if (roomGetResut != ERROR_CODE.NONE || room is null)
+        (errorCode, var room) = RoomManager.GetRoom(user);
+        if (errorCode != ERROR_CODE.NONE || room is null)
         {
-            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = roomGetResut });
+            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
         }
 
-        var setRockResult = room.SetRock(user, packet.X, packet.Y);
-        if (setRockResult != ERROR_CODE.NONE)
+        errorCode = room.SetRock(user, packet.X, packet.Y);
+        if (errorCode != ERROR_CODE.NONE)
         {
-            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = setRockResult });
+            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
         }
 

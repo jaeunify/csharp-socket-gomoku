@@ -8,19 +8,17 @@ public class EnterPacketHandler : PacketHandler<EnterPacket>
     public EnterPacketHandler(Action<string, Packet> sendPacket) : base(sendPacket) { }
     public override void Handle(string SenderSessionId, EnterPacket packet)
     {
-        var sessionID = SenderSessionId;
-
-        var (errorCode, user) = UserManager.AddUser(sessionID);
+        var (errorCode, user) = UserManager.AddUser(SenderSessionId);
         if (errorCode != ERROR_CODE.NONE || user is null)
         {
-            SendPacket(sessionID, new ErrorPacket() { ErrorCode = errorCode });
+            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
         }
 
         (errorCode, var room) = RoomManager.Enter(user);
         if (errorCode != ERROR_CODE.NONE || room is null)
         {
-            SendPacket(sessionID, new ErrorPacket() { ErrorCode = errorCode });
+            SendPacket(SenderSessionId, new ErrorPacket() { ErrorCode = errorCode });
             return;
         }
 
@@ -29,8 +27,9 @@ public class EnterPacketHandler : PacketHandler<EnterPacket>
         {
             room.Start();
 
-            var otherUser = room.GetOtherUser(user);
+            // 게임 시작 패킷을 두 유저에게 전송합니다.
             var IsMyTurn = room.IsMyTurn(user);
+            var otherUser = room.GetOtherUser(user);
             SendPacket(user.SessionId, new GameStartPacket() { AmIFirst = IsMyTurn });
             SendPacket(otherUser.SessionId, new GameStartPacket() { AmIFirst = !IsMyTurn });
         }

@@ -7,14 +7,13 @@ namespace GomokuServer.Network;
 
 public class PacketRouter
 {
-    bool IsThreadRunning = false;
-
-    private BufferBlock<PktBinaryRequestInfo> MsgBuffer = new();
-    private Action<string, byte[]> SendBinaryAction;
+    private bool IsThreadRunning = false;
+    private BufferBlock<PktBinaryRequestInfo> _MsgBuffer = new();
+    private Action<string, byte[]> _SendBinary;
 
     public PacketRouter(Action<string, byte[]> sendBinaryAction)
     {
-        SendBinaryAction = sendBinaryAction;
+        _SendBinary = sendBinaryAction;
     }
 
     public void CreateAndStart()
@@ -23,11 +22,33 @@ public class PacketRouter
         new Thread(this.Route).Start();
     }
 
+    public void Destroy()
+    {
+        IsThreadRunning = false;
+    }
+
+    public void InsertPacket(PktBinaryRequestInfo data)
+    {
+        _MsgBuffer.Post(data);
+    }
+
+    public void SendPacket(string sessionId, Packet packet)
+    {
+        var body = MessagePackSerializer.Serialize(packet);
+        var totalSize = (Int16)(body.Length + ServerOption.HeaderSize);
+
+        List<byte> dataSource = new List<byte>();
+        dataSource.AddRange(BitConverter.GetBytes(totalSize));
+        dataSource.AddRange(body);
+
+        _SendBinary(sessionId, dataSource.ToArray());
+    }
+
     private void Route()
     {
         while (IsThreadRunning)
         {
-            var serializedPacket = MsgBuffer.Receive();
+            var serializedPacket = _MsgBuffer.Receive();
             var senderSessionId = serializedPacket.SessionId;
 
             try
@@ -57,27 +78,5 @@ public class PacketRouter
                 throw; // impossible fatal error
             }
         }
-    }
-
-    public void Destroy()
-    {
-        IsThreadRunning = false;
-    }
-
-    public void InsertPacket(PktBinaryRequestInfo data)
-    {
-        MsgBuffer.Post(data);
-    }
-
-    public void SendPacket(string sessionId, Packet packet)
-    {
-        var body = MessagePackSerializer.Serialize(packet);
-        var totalSize = (Int16)(body.Length + ServerOption.HeaderSize);
-
-        List<byte> dataSource = new List<byte>();
-        dataSource.AddRange(BitConverter.GetBytes(totalSize));
-        dataSource.AddRange(body);
-
-        SendBinaryAction(sessionId, dataSource.ToArray());
     }
 }
