@@ -12,12 +12,13 @@ public class ServerClient : Instance
     public string Ip { get; set; }
     public int Port { get; set; }
     public LogState LogState { get; set; }
-    public Action<string>? OnErrorMessage;
     private TcpClient client;
     private NetworkStream stream;
     private Thread receiveThread;
     private bool isRunning = false;
     public event Action<Packet>? OnReceivePacket;
+    public event Action<string>? OnReceiveErrorPacket;
+    public event Action<Packet>? OnSendPacket;
     public event Action? OnError;
 
     public ServerClient(LogState logstore)
@@ -51,7 +52,7 @@ public class ServerClient : Instance
 
 
     /// <returns>int byteCount: 전송한 바이너리의 전체 길이</returns>
-    public async Task<int> SendAsync(Packet packet)
+    public async Task<int> SendAsync(Packet packet, bool triggerEvent = false)
     {
         if (stream == null)
             throw new Exception("서버 연결이 되어 있지 않습니다");
@@ -64,6 +65,11 @@ public class ServerClient : Instance
         bytes.AddRange(body);
 
         await stream.WriteAsync(bytes.ToArray(), 0, bytes.Count);
+
+        if (triggerEvent)
+        {
+            OnSendPacket?.Invoke(packet);
+        }
 
         LogState.AddLog($"[전송] {packet.PacketId} {JsonSerializer.Serialize(packet)}");
         return bytes.Count;
@@ -117,7 +123,9 @@ public class ServerClient : Instance
             byte[] body = new byte[totalSize - HEADER_SIZE];
             Buffer.BlockCopy(data, offset + HEADER_SIZE, body, 0, body.Length);
 
-            packets.Add(MessagePackSerializer.Deserialize<Packet>(body));
+            var packet = MessagePackSerializer.Deserialize<Packet>(body);
+            packets.Add(packet);
+            LogState?.AddLog($"[응답] {packet.PacketId} {JsonSerializer.Serialize(packet, packet.GetType())}");
             offset += totalSize;
         }
 
@@ -129,7 +137,6 @@ public class ServerClient : Instance
         if (packet.PacketId > 0)
         {
             OnReceivePacket?.Invoke(packet);
-            LogState?.AddLog($"[응답] {packet.PacketId} {JsonSerializer.Serialize(packet)}");
         }
         else if (packet is ErrorPacket errorPacket)
         {
@@ -147,7 +154,7 @@ public class ServerClient : Instance
                 ERROR_CODE.NOT_MY_TURN => "당신의 차례가 아닙니다. 상대방의 차례를 기다리세요.",
                 _ => throw new Exception("알 수 없는 에러 코드")
             };
-            OnErrorMessage?.Invoke(errorMessage);
+            OnReceiveErrorPacket?.Invoke(errorMessage);
         }
     }
 }

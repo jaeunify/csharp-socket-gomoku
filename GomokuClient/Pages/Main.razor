@@ -78,7 +78,7 @@
         LogState.OnChange += HandleLogChange;
 
         // 서버에서 에러 메시지를 받으면 alert로 표시
-        ServerClient.OnErrorMessage = async (msg) => { await InvokeAsync(() => Js.InvokeVoidAsync("alert", msg)); };
+        ServerClient.OnReceiveErrorPacket += async (msg) => { await InvokeAsync(() => Js.InvokeVoidAsync("alert", msg)); };
 
         // 패킷ID - 패킷 타입, 기본 입력값 매핑
         SendAblePackets = new Dictionary<PacketId, (Type packetType, string DefaultInput)>
@@ -102,7 +102,6 @@
     public void Dispose()
     {
         LogState.OnChange -= HandleLogChange;
-        ServerClient.OnErrorMessage = null;
     }
 
     async Task Connect()
@@ -147,7 +146,7 @@
         {
             var packetType = SendAblePackets[PacketId].packetType;
             var packet = (Packet)JsonSerializer.Deserialize(Input, packetType);
-            await ServerClient.SendAsync(packet);
+            await ServerClient.SendAsync(packet, true);
         }
         catch (JsonException)
         {

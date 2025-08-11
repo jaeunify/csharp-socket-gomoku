@@ -50,6 +50,7 @@
         GameState.OnChange += HandleGameStateChange;
         ServerClient.OnReceivePacket += HandleReceivePacket;
         ServerClient.OnError += HandleError;
+        ServerClient.OnSendPacket += HandleSendPacket;
 
         Board = GameState.Board;
     }
@@ -59,6 +60,7 @@
         GameState.OnChange -= HandleGameStateChange;
         ServerClient.OnReceivePacket -= HandleReceivePacket;
         ServerClient.OnError -= HandleError;
+        ServerClient.OnSendPacket -= HandleSendPacket;
     }
 
     private void HandleGameStateChange()
@@ -117,5 +119,18 @@
     void HandleError()
     {
         GameState.HandleError();
+    }
+
+    void HandleSendPacket(Packet packet)
+    {
+        if (packet is SetRockPacket setRockPacket)
+        {
+            var (success, msg) = GameState.SetRock(true, setRockPacket.X, setRockPacket.Y);
+            if (!success)
+            {
+                _ = Js.InvokeVoidAsync("alert", msg);
+                return;
+            }
+        }
     }
 }
